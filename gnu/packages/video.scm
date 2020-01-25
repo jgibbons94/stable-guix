@@ -1249,6 +1249,7 @@ videoformats depend on the configuration flags of ffmpeg.")
        ("dbus" ,dbus)
        ("eudev" ,eudev)
        ("flac" ,flac)
+       ("fluidsynth" ,fluidsynth)
        ("ffmpeg" ,ffmpeg)
        ("fontconfig" ,fontconfig)
        ("freetype" ,freetype)
@@ -1319,6 +1320,7 @@ videoformats depend on the configuration flags of ffmpeg.")
     (arguments
      `(#:configure-flags
        `("BUILDCC=gcc"
+         "--enable-fluidsynth"
          ,(string-append "LDFLAGS=-Wl,-rpath -Wl,"
                          (assoc-ref %build-inputs "ffmpeg")
                          "/lib"))       ;needed for the tests
