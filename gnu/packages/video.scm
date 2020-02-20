@@ -133,6 +133,7 @@
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages qt)
+  #:use-module (gnu packages rav1e)
   #:use-module (gnu packages rdesktop)
   #:use-module (gnu packages ruby)
   #:use-module (gnu packages samba)
@@ -834,19 +835,24 @@ operate properly.")
     (license license:expat)))
 
 (define-public ffmpeg
+  (let ((commit "bb01baae269cd2d7a0e61dc9bf327168edd43b04")
+        (revision "0"))
   (package
     (name "ffmpeg")
-    (version "4.2.2")
+    (version (git-version "4.2.2" revision commit))
     (source (origin
-             (method url-fetch)
-             (uri (string-append "https://ffmpeg.org/releases/ffmpeg-"
-                                 version ".tar.xz"))
+             (method git-fetch)
+             (uri (git-reference
+                    (url "https://github.com/FFmpeg/FFmpeg.git")
+                    (commit commit)))
+             (file-name (git-file-name name version))
              (sha256
               (base32
-               "176jn1lcdf0gk7sa5l2mv0faqp5dsqdhx1gqcrgymqhfmdal4xfb"))))
+               "18rywv54bjr4xqzwc1fgc9hh1zwrfcgxfks6r58j92dkblbgyjjp"))))
     (build-system gnu-build-system)
     (inputs
      `(("dav1d" ,dav1d)
+       ("rav1e" ,rav1e)
        ("fontconfig" ,fontconfig)
        ("freetype" ,freetype)
        ("frei0r-plugins" ,frei0r-plugins)
@@ -964,6 +970,7 @@ operate properly.")
          "--enable-openal"
          "--enable-opengl"
          "--enable-libdrm"
+         "--enable-librav1e"
 
          "--enable-runtime-cpudetect"
 
@@ -1013,7 +1020,7 @@ operate properly.")
     (description "FFmpeg is a complete, cross-platform solution to record,
 convert and stream audio and video.  It includes the libavcodec
 audio/video codec library.")
-    (license license:gpl2+)))
+    (license license:gpl2+))))
 
 (define-public ffmpeg-3.4
   (package
@@ -1029,10 +1036,13 @@ audio/video codec library.")
     (arguments
      (substitute-keyword-arguments (package-arguments ffmpeg)
        ((#:configure-flags flags)
-        `(delete "--enable-libdav1d" (delete "--enable-libaom"
-                 ,flags)))))
-    (inputs (alist-delete "dav1d" (alist-delete "libaom"
-                          (package-inputs ffmpeg))))))
+        `(delete "--enable-librav1e"
+                 (delete "--enable-libdav1d"
+                         (delete "--enable-libaom" ,flags))))))
+    (inputs (alist-delete "rav1e"
+                          (alist-delete "dav1d"
+                                        (alist-delete "libaom"
+                                                      (package-inputs ffmpeg)))))))
 
 (define-public ffmpeg-for-stepmania
   (hidden-package
