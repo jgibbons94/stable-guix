@@ -1,0 +1,140 @@
+This patch is needed to build flex-2.6.1 on the Hurd.
+
+It is a backport of three upstream commits
+
+    https://github.com/westes/flex/commit/9160ceb67ff5317753ff71c623b037126862a32f
+    https://github.com/westes/flex/commit/babe9a1e8eeb5497756d4d7998dd1ca82c62a189
+    https://github.com/westes/flex/commit/7975c43384d766ca12cb3f292754dbdc34168886
+
+From 7c960b48c99b2044b65c0bc2af9e57202e326a90 Mon Sep 17 00:00:00 2001
+From: rlar <rlar>
+Date: Sun, 28 Feb 2016 21:12:45 +0100
+Subject: [PATCH 1/3] cast to get rid of warnings
+
+---
+ src/main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/main.c b/src/main.c
+index e329e4e..1288a5d 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -360,14 +360,14 @@ void check_options (void)
+ 			} else {
+ 				do {
+ 					char m4_path[PATH_MAX];
+-					int length = strlen(path);
++					size_t length = strlen(path);
+ 					struct stat sbuf;
+ 
+ 					const char *endOfDir = strchr(path, ':');
+ 					if (!endOfDir)
+ 						endOfDir = path+length;
+ 
+-					if ((endOfDir-path+2) >= sizeof(m4_path)) {
++					if (endOfDir + 2 >= path + sizeof(m4_path)) {
+ 					    path = endOfDir+1;
+ 						continue;
+ 					}
+-- 
+2.24.0
+
+From c85ca046b4d3171bdbb26e73f0ee4eb0b0921daa Mon Sep 17 00:00:00 2001
+From: Tobias Klauser <tklauser@distanz.ch>
+Date: Thu, 31 Mar 2016 10:09:57 +0200
+Subject: [PATCH 2/3] Fix potential buffer overflow in strncat()
+
+When using clang/llvm 3.8 to compile flex, the following warning is
+emitted:
+
+main.c:378:27: warning: the value of the size argument in 'strncat' is too large, might lead to a buffer overflow [-Wstrncat-size]
+                                        strncat(m4_path, m4, sizeof(m4_path));
+                                                             ^~~~~~~~~~~~~~~
+main.c:378:27: note: change the argument to be the free space in the destination buffer minus the terminating null byte
+                                        strncat(m4_path, m4, sizeof(m4_path));
+                                                             ^~~~~~~~~~~~~~~
+                                                             sizeof(m4_path) - strlen(m4_path) - 1
+
+Fix it up by using the solution proposed by the warning message.
+---
+ src/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/main.c b/src/main.c
+index 1288a5d..b4d47cb 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -375,7 +375,7 @@ void check_options (void)
+ 					strncpy(m4_path, path, sizeof(m4_path));
+ 					m4_path[endOfDir-path] = '/';
+ 					m4_path[endOfDir-path+1] = '\0';
+-					strncat(m4_path, m4, sizeof(m4_path));
++					strncat(m4_path, m4, sizeof(m4_path) - strlen(m4_path) - 1);
+ 					if (stat(m4_path, &sbuf) == 0 &&
+ 						(S_ISREG(sbuf.st_mode)) && sbuf.st_mode & S_IXUSR) {
+ 						m4 = strdup(m4_path);
+-- 
+2.24.0
+
+From 376c31df7d7dcbd7ca0616d49f32086ca17a18d3 Mon Sep 17 00:00:00 2001
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Date: Thu, 29 Dec 2016 08:44:22 -0500
+Subject: [PATCH 3/3] scanner: allocate correct buffer size for m4 path.
+
+Flex did not check the length of the m4 path which could lead to a
+buffer overflow in some cases. Additionally, not all platforms believe
+in PATH_MAX, so stop relying on it.
+
+Fixes #138
+---
+ src/main.c | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
+
+diff --git a/src/main.c b/src/main.c
+index b4d47cb..7ae7980 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -358,8 +358,8 @@ void check_options (void)
+ 			if (!path) {
+ 				m4 = M4;
+ 			} else {
++				int m4_length = strlen(m4);
+ 				do {
+-					char m4_path[PATH_MAX];
+ 					size_t length = strlen(path);
+ 					struct stat sbuf;
+ 
+@@ -367,19 +367,17 @@ void check_options (void)
+ 					if (!endOfDir)
+ 						endOfDir = path+length;
+ 
+-					if (endOfDir + 2 >= path + sizeof(m4_path)) {
+-					    path = endOfDir+1;
+-						continue;
+-					}
+-
+-					strncpy(m4_path, path, sizeof(m4_path));
+-					m4_path[endOfDir-path] = '/';
+-					m4_path[endOfDir-path+1] = '\0';
+-					strncat(m4_path, m4, sizeof(m4_path) - strlen(m4_path) - 1);
+-					if (stat(m4_path, &sbuf) == 0 &&
+-						(S_ISREG(sbuf.st_mode)) && sbuf.st_mode & S_IXUSR) {
+-						m4 = strdup(m4_path);
+-						break;
++					{
++						char m4_path[endOfDir-path + 1 + m4_length + 1];
++
++						memcpy(m4_path, path, endOfDir-path);
++						m4_path[endOfDir-path] = '/';
++						memcpy(m4_path + (endOfDir-path) + 1, m4, m4_length + 1);
++						if (stat(m4_path, &sbuf) == 0 &&
++							(S_ISREG(sbuf.st_mode)) && sbuf.st_mode & S_IXUSR) {
++							m4 = strdup(m4_path);
++							break;
++						}
+ 					}
+ 					path = endOfDir+1;
+ 				} while (path[0]);
+-- 
+2.24.0
+

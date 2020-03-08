@@ -877,6 +877,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/findutils-localstatedir.patch		\
   %D%/packages/patches/findutils-test-rwlock-threads.patch	\
   %D%/packages/patches/flann-cmake-3.11.patch			\
+  %D%/packages/patches/flex-2.6.1-hurd-path-max.patch		\
   %D%/packages/patches/flint-ldconfig.patch			\
   %D%/packages/patches/foomatic-filters-CVE-2015-8327.patch	\
   %D%/packages/patches/foomatic-filters-CVE-2015-8560.patch	\

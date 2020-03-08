@@ -1,6 +1,7 @@
 ;;; GNU Guix --- Functional package management for GNU
 ;;; Copyright © 2012, 2013, 2014, 2019 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2016 Efraim Flashner <efraim@flashner.co.il>
+;;; Copyright © 2020 Jan (janneke) Nieuwenhuizen <janneke@gnu.org>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -84,6 +85,7 @@ executes the corresponding C code.")
               (uri (string-append "https://github.com/westes/flex"
                                   "/releases/download/v" version "/"
                                   "flex-" version ".tar.xz"))
+              (patches (search-patches "flex-2.6.1-hurd-path-max.patch"))
              (sha256
               (base32
                "0gqhk4vkwy4gl9xbpgkljph8c0a5kpijz6wd0p5r9q202qn42yic"))))))
