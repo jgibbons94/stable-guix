@@ -18048,7 +18048,8 @@ scripts to load entry points more quickly.")
         (base32
          "07f9cgjr3h4j2m67fhwapn8fja87vazl58zsj4yppf9y3an2x6dp"))))
     (native-inputs
-     `(("python-tox" ,python-tox)))
+      `(("python-importlib-metadata" ,python-importlib-metadata)
+	("python-tox" ,python-tox)))
     (arguments
      `(#:phases
        (modify-phases %standard-phases
