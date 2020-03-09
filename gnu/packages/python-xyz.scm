@@ -9147,7 +9147,7 @@ with a new public API, and RPython support.")
               (uri (pypi-uri "hy" version))
               (sha256
                (base32
-                "jfnxwc0jvgqwyxmji77alxyibamql3"))))
+                "0lv428895zxsz43968qx0q9bimwqnfykndz4dpjbq515w2gvzhjh"))))
     (build-system python-build-system)
     (arguments
      '(#:phases
