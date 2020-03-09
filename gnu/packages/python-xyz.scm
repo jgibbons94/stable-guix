@@ -9961,9 +9961,9 @@ with a new public API, and RPython support.")
 (define-public python2-rply
   (package-with-python2 python-rply))
 
-(define-public python-hy
+(define-public hy
   (package
-    (name "python-hy")
+    (name "hy")
     (version "0.18.0")
     (source (origin
               (method url-fetch)
