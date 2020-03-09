@@ -9138,16 +9138,16 @@ with a new public API, and RPython support.")
 (define-public python2-rply
   (package-with-python2 python-rply))
 
-(define-public python-hy
+(define-public hy
   (package
-    (name "python-hy")
-    (version "0.17.0")
+    (name "hy")
+    (version "0.18.0")
     (source (origin
               (method url-fetch)
               (uri (pypi-uri "hy" version))
               (sha256
                (base32
-                "1gdbqsirsdxj320wnp7my5awzs1kfs6m4fqmkzbd1zd47qzj0zfi"))))
+                "jfnxwc0jvgqwyxmji77alxyibamql3"))))
     (build-system python-build-system)
     (arguments
      '(#:phases
@@ -9178,9 +9178,6 @@ with a new public API, and RPython support.")
 its Lisp code into the Python Abstract Syntax Tree, you have the whole world of
 Python at your fingertips, in Lisp form.")
     (license license:expat)))
-
-(define-public python2-hy
-  (package-with-python2 python-hy))
 
 (define-public python2-functools32
   (package
