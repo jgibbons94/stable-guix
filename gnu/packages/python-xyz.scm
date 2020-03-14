@@ -9165,6 +9165,7 @@ with a new public API, and RPython support.")
        ("python-nose" ,python-nose)))
     (propagated-inputs
      `(("python-astor" ,python-astor)
+       ("python-colorama" ,python-colorama)
        ("python-clint" ,python-clint)
        ("python-rply" ,python-rply)
        ("python-fastentrypoints"
