@@ -4913,7 +4913,8 @@ with the mouse isn’t always trivial.")
                 "047sf00x71xbmi8bqrhfbmr9bk89l2gbykkqsfpw4wz6yfjscs6y"))))
     (build-system gnu-build-system)
     (arguments
-     `(#:tests? #f))                    ; no tests included
+     `(#:tests? #f                                   ; no tests included
+       #:configure-flags '("CFLAGS=-fgnu89-inline"))); fix inlines
     (inputs
      `(("sdl-union" ,(sdl-union (list sdl sdl-image sdl-mixer sdl-ttf)))
        ("freetype" ,freetype)
