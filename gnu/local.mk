@@ -111,7 +111,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/check.scm			\
   %D%/packages/chemistry.scm			\
   %D%/packages/chez.scm				\
-  %D%/packages/chicken.scm				\
+  %D%/packages/chicken.scm			\
   %D%/packages/chromium.scm			\
   %D%/packages/ci.scm				\
   %D%/packages/cinnamon.scm			\
@@ -154,7 +154,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/diffoscope.scm			\
   %D%/packages/digest.scm			\
   %D%/packages/direct-connect.scm		\
-  %D%/packages/disk.scm			\
+  %D%/packages/disk.scm				\
   %D%/packages/distributed.scm			\
   %D%/packages/display-managers.scm		\
   %D%/packages/django.scm			\
@@ -265,13 +265,13 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/idris.scm			\
   %D%/packages/idutils.scm			\
   %D%/packages/image.scm			\
-  %D%/packages/image-processing.scm	\
-  %D%/packages/image-viewers.scm	\
+  %D%/packages/image-processing.scm		\
+  %D%/packages/image-viewers.scm		\
   %D%/packages/imagemagick.scm			\
   %D%/packages/inklingreader.scm		\
   %D%/packages/inkscape.scm			\
   %D%/packages/installers.scm			\
-  %D%/packages/ipfs.scm			\
+  %D%/packages/ipfs.scm				\
   %D%/packages/irc.scm  			\
   %D%/packages/iso-codes.scm			\
   %D%/packages/java.scm				\
@@ -341,7 +341,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/make-bootstrap.scm		\
   %D%/packages/markup.scm			\
   %D%/packages/marst.scm			\
-  %D%/packages/mate.scm             \
+  %D%/packages/mate.scm             		\
   %D%/packages/maths.scm			\
   %D%/packages/maven.scm			\
   %D%/packages/mc.scm				\
@@ -406,9 +406,10 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/photo.scm			\
   %D%/packages/phabricator.scm 			\
   %D%/packages/php.scm				\
+  %D%/packages/piet.scm				\
   %D%/packages/pkg-config.scm			\
   %D%/packages/plotutils.scm			\
-  %D%/packages/poedit.scm				\
+  %D%/packages/poedit.scm			\
   %D%/packages/polkit.scm			\
   %D%/packages/popt.scm				\
   %D%/packages/printers.scm			\
@@ -440,7 +441,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/re2c.scm				\
   %D%/packages/readline.scm			\
   %D%/packages/rednotebook.scm			\
-  %D%/packages/regex.scm				\
+  %D%/packages/regex.scm			\
   %D%/packages/robotics.scm			\
   %D%/packages/rpc.scm				\
   %D%/packages/rrdtool.scm			\
@@ -487,7 +488,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/storage.scm			\
   %D%/packages/suckless.scm			\
   %D%/packages/swig.scm				\
-  %D%/packages/sync.scm			\
+  %D%/packages/sync.scm				\
   %D%/packages/syncthing.scm			\
   %D%/packages/synergy.scm			\
   %D%/packages/syndication.scm			\
@@ -528,7 +529,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/wget.scm				\
   %D%/packages/wicd.scm				\
   %D%/packages/wine.scm				\
-  %D%/packages/wireservice.scm				\
+  %D%/packages/wireservice.scm			\
   %D%/packages/wm.scm				\
   %D%/packages/wordnet.scm			\
   %D%/packages/wv.scm				\
@@ -550,7 +551,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/services/avahi.scm			\
   %D%/services/base.scm				\
   %D%/services/certbot.scm			\
-  %D%/services/cgit.scm			\
+  %D%/services/cgit.scm				\
   %D%/services/configuration.scm		\
   %D%/services/cuirass.scm			\
   %D%/services/cups.scm				\
@@ -562,8 +563,8 @@ GNU_SYSTEM_MODULES =				\
   %D%/services/docker.scm			\
   %D%/services/authentication.scm		\
   %D%/services/games.scm			\
-  %D%/services/getmail.scm				\
-  %D%/services/guix.scm			\
+  %D%/services/getmail.scm			\
+  %D%/services/guix.scm				\
   %D%/services/kerberos.scm			\
   %D%/services/lirc.scm				\
   %D%/services/virtualization.scm		\
@@ -573,7 +574,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/services/monitoring.scm			\
   %D%/services/networking.scm			\
   %D%/services/nix.scm				\
-  %D%/services/nfs.scm			\
+  %D%/services/nfs.scm				\
   %D%/services/pam-mount.scm			\
   %D%/services/security-token.scm		\
   %D%/services/shepherd.scm			\
@@ -582,7 +583,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/services/pm.scm				\
   %D%/services/rsync.scm			\
   %D%/services/sddm.scm				\
-  %D%/services/spice.scm				\
+  %D%/services/spice.scm			\
   %D%/services/ssh.scm				\
   %D%/services/sysctl.scm			\
   %D%/services/telephony.scm			\
