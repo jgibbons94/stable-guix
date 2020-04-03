@@ -60,7 +60,7 @@
 ;;; Copyright © 2019 Sam <smbaines8@gmail.com>
 ;;; Copyright © 2019 Jack Hill <jackhill@jackhill.us>
 ;;; Copyright © 2019, 2020 Guillaume Le Vaillant <glv@posteo.net>
-;;; Copyright © 2019 Alex Griffin <a@ajgrf.com>
+;;; Copyright © 2019, 2020 Alex Griffin <a@ajgrf.com>
 ;;; Copyright © 2019 Pierre Langlois <pierre.langlois@gmx.com>
 ;;; Copyright © 2019 Jacob MacDonald <jaccarmac@gmail.com>
 ;;; Copyright © 2019 Giacomo Leidi <goodoldpaul@autistici.org>
@@ -74,6 +74,7 @@
 ;;; Copyright © 2020 Josh Marshall <joshua.r.marshall.1991@gmail.com>
 ;;; Copyright © 2020 Alexandros Theodotou <alex@zrythm.org>
 ;;; Copyright © 2020 Lars-Dominik Braun <ldb@leibniz-psychology.org>
+;;; Copyright © 2020 Alex ter Weele <alex.ter.weele@gmail.com>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -2594,14 +2595,14 @@ environments and back.")
 (define-public python-pyyaml
   (package
     (name "python-pyyaml")
-    (version "5.3")
+    (version "5.3.1")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "PyYAML" version))
        (sha256
         (base32
-         "058nd4p8f25wwzy2aiwh18wcrdm6663cqbfdkgjp8y9cp7ampx79"))))
+         "0pb4zvkfxfijkpgd1b86xjsqql97ssf1knbd1v53wkg1qm9cgsmq"))))
     (build-system python-build-system)
     (inputs
      `(("libyaml" ,libyaml)))
@@ -4642,30 +4643,33 @@ as the original project seems to have been abandoned circa 2007.")
   (package-with-python2 python-socksipy-branch))
 
 (define-public python-socksipychain
-  (package
-    (name "python-socksipychain")
-    (version "2.1.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/pagekite/PySocksipyChain.git")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32
-         "0idm9a050rd2kbgbz2sk9ib9589kj4xh1xdnggs6xbq2v2y8f6zn"))))
-    (build-system python-build-system)
-    (arguments
-     `(#:tests? #f)) ; Tests try to access the network.
-    (home-page "http://pagekite.net/wiki/Floss/PySocksipyChain/")
-    (synopsis "Python SOCKS module with chained proxies support")
-    (description
-     "SocksiPyChain is a modified version of the SocksiPy SOCKS module, which
+  (let ((commit "eb5ee8741ce006ac0c5c3e2e83204062c348c155")
+        (revision "1")
+        (version "2.1.1"))
+    (package
+      (name "python-socksipychain")
+      (version (git-version version revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/pagekite/PySocksipyChain.git")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32
+           "0fpphn6xnpm7qk8a914s4abycsbq9w6qkci07my632v0fylnm5n7"))))
+      (build-system python-build-system)
+      (arguments
+       `(#:tests? #f))                  ; Tests try to access the network.
+      (home-page "http://pagekite.net/wiki/Floss/PySocksipyChain/")
+      (synopsis "Python SOCKS module with chained proxies support")
+      (description
+       "SocksiPyChain is a modified version of the SocksiPy SOCKS module, which
 adds support for arbitrary chaining of proxy servers and various modes of
 TLS/SSL encryption.  It was developed for use in PageKite, and also includes
 a simple netcat replacement with chaining support.")
-    (license license:bsd-3)))
+      (license license:bsd-3))))
 
 (define-public python-pycodestyle
   (package
@@ -7822,14 +7826,14 @@ primary use case is APIs defined before keyword-only parameters existed.")
 (define-public python-pyasn1
   (package
     (name "python-pyasn1")
-    (version "0.4.3")
+    (version "0.4.8")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "pyasn1" version))
        (sha256
         (base32
-         "1z5h38anjzzrxpraa9iq9llffyx2zs8gx0q6dc1g029miwnn50gv"))))
+         "1fnhbi3rmk47l9851gbik0flfr64vs5j0hbqx24cafjap6gprxxf"))))
     (build-system python-build-system)
     (home-page "http://pyasn1.sourceforge.net/")
     (synopsis "ASN.1 types and codecs")
@@ -11781,12 +11785,6 @@ hardware-accelerated multitouch applications.")
 (define-public python2-kivy
   (package-with-python2 python-kivy))
 
-(define-public python-kivy-next
-  (deprecated-package "python-kivy-next" python-kivy))
-
-(define-public python2-kivy-next
-  (deprecated-package "python2-kivy-next" python2-kivy))
-
 (define-public python-binaryornot
   (package
     (name "python-binaryornot")
@@ -15632,14 +15630,14 @@ and other tools.")
 (define-public python-typing-extensions
   (package
     (name "python-typing-extensions")
-    (version "3.7.2")
+    (version "3.7.4.1")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "typing_extensions" version))
        (sha256
         (base32
-         "0wfsv71pvkyf2na938l579jh0v3kzl6g744ijgnahcwd4d9x0b7v"))))
+         "1wj1vcgbnm20aiinmphyxfrbv3qi9xdhvw89ab3qm42y9n4wq7h9"))))
     (build-system python-build-system)
     (home-page
      "https://github.com/python/typing/blob/master/typing_extensions/README.rst")
@@ -18728,4 +18726,420 @@ HTML-containing files.")
      "JSON5 extends the JSON data interchange format to make it slightly more
 usable as a configuration language.  This Python package implements parsing and
 dumping of JSON5 data structures.")
+    (license license:asl2.0)))
+
+(define-public python-frozendict
+  (package
+    (name "python-frozendict")
+    (version "1.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "frozendict" version))
+       (sha256
+        (base32 "0ibf1wipidz57giy53dh7mh68f2hz38x8f4wdq88mvxj5pr7jhbp"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/slezica/python-frozendict")
+    (synopsis "Simple immutable mapping for Python")
+    (description
+     "@dfn{frozendict} is an immutable wrapper around dictionaries that
+implements the complete mapping interface.  It can be used as a drop-in
+replacement for dictionaries where immutability is desired.")
+    (license license:expat)))
+
+(define-public python-unpaddedbase64
+  (package
+    (name "python-unpaddedbase64")
+    (version "1.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/matrix-org/python-unpaddedbase64.git")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32
+         "0if3fjfxga0bwdq47v77fs9hrcqpmwdxry2i2a7pdqsp95258nxd"))))
+    (build-system python-build-system)
+    (home-page "https://pypi.org/project/unpaddedbase64/")
+    (synopsis "Encode and decode Base64 without “=” padding")
+    (description
+     "RFC 4648 specifies that Base64 should be padded to a multiple of 4 bytes
+using “=” characters.  However this conveys no benefit so many protocols
+choose to use Base64 without the “=” padding.")
+    (license license:asl2.0)))
+
+(define-public python-canonicaljson
+  (package
+    (name "python-canonicaljson")
+    (version "1.1.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "canonicaljson" version))
+       (sha256
+        (base32 "09cpacc8yvcc74i63pdmlfaahh77dnvbyw9zf29wml2zzwqfbg25"))))
+    (build-system python-build-system)
+    (propagated-inputs
+     `(("python-six" ,python-six)
+       ("python-frozendict" ,python-frozendict)
+       ("python-simplejson" ,python-simplejson)))
+    (home-page "https://github.com/matrix-org/python-canonicaljson")
+    (synopsis "Canonical JSON")
+    (description
+     "Deterministically encode JSON.
+
+@itemize
+@item Encodes objects and arrays as RFC 7159 JSON.
+@item Sorts object keys so that you get the same result each time.
+@item Has no insignificant whitespace to make the output as small as possible.
+@item Escapes only the characters that must be escaped, U+0000 to
+ U+0019 / U+0022 / U+0056, to keep the output as small as possible.
+@item Uses the shortest escape sequence for each escaped character.
+@item Encodes the JSON as UTF-8.
+@item Can encode frozendict immutable dictionaries.
+@end itemize")
+    (license license:asl2.0)))
+
+(define-public python-signedjson
+  (package
+    (name "python-signedjson")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "signedjson" version))
+       (sha256
+        (base32 "0280f8zyycsmd7iy65bs438flm7m8ffs1kcxfbvhi8hbazkqc19m"))))
+    (build-system python-build-system)
+    (propagated-inputs
+     `(("python-canonicaljson" ,python-canonicaljson)
+       ("python-importlib-metadata" ,python-importlib-metadata)
+       ("python-pynacl" ,python-pynacl)
+       ("python-typing-extensions" ,python-typing-extensions)
+       ("python-unpaddedbase64" ,python-unpaddedbase64)))
+    (native-inputs
+     `(("python-setuptools-scm" ,python-setuptools-scm)))
+    (home-page "https://github.com/matrix-org/python-signedjson")
+    (synopsis "Sign JSON objects with ED25519 signatures")
+    (description
+     "Sign JSON objects with ED25519 signatures.
+
+@itemize
+@item More than one entity can sign the same object.
+@item Each entity can sign the object with more than one key making it easier to
+rotate keys
+@item ED25519 can be replaced with a different algorithm.
+@item Unprotected data can be added to the object under the @dfn{\"unsigned\"}
+key.
+@end itemize")
+    (license license:asl2.0)))
+
+(define-public python-daemonize
+  (package
+    (name "python-daemonize")
+    (version "2.5.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "daemonize" version))
+       (sha256
+        (base32 "1hwbl3gf9fdds9sc14zgjyjisjvxidrvqc11xlbb0b6jz17nw0nx"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/thesharp/daemonize")
+    (synopsis "Library for writing system daemons in Python")
+    (description "Daemonize is a library for writing system daemons in Python.")
+    (license license:expat)))
+
+(define-public python-pymacaroons
+  (package
+    (name "python-pymacaroons")
+    (version "0.13.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pymacaroons" version))
+       (sha256
+        (base32 "1f0357a6g1h96sk6wy030xmc1p4rd80a999qvxd28v7nlm1blsqy"))))
+    (build-system python-build-system)
+    (propagated-inputs
+     `(("python-six" ,python-six)
+       ("python-pynacl" ,python-pynacl)))
+    (home-page "https://github.com/ecordell/pymacaroons")
+    (synopsis "Python Macaroon Library")
+    (description
+     "Macaroons, like cookies, are a form of bearer credential.  Unlike opaque
+tokens, macaroons embed caveats that define specific authorization
+requirements for the target service, the service that issued the root macaroon
+and which is capable of verifying the integrity of macaroons it receives.
+
+Macaroons allow for delegation and attenuation of authorization.  They are
+simple and fast to verify, and decouple authorization policy from the
+enforcement of that policy.")
+    (license license:expat)))
+
+(define-public python-prometheus-client
+  (package
+    (name "python-prometheus-client")
+    (version "0.7.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "prometheus_client" version))
+       (sha256
+        (base32 "1ni2yv4ixwz32nz39ckia76lvggi7m19y5f702w5qczbnfi29kbi"))))
+    (build-system python-build-system)
+    (arguments
+     ;; TODO: No tests in the PyPI distribution.
+     `(#:tests? #f))
+    (propagated-inputs
+     `(("python-twisted" ,python-twisted)))
+    (home-page "https://github.com/prometheus/client_python")
+    (synopsis "Prometheus instrumentation library")
+    (description
+     "This is the official Python client for the Prometheus monitoring server.")
+    (license license:asl2.0)))
+
+(define-public python-ldap3
+  (package
+    (name "python-ldap3")
+    (version "2.7")
+    (home-page "https://github.com/cannatag/ldap3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference (url home-page)
+                           (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0xw9fkqld21xsvdpaqir8ccc2l805xnn9gxahsnl70xzp3mwl0xv"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:tests? #f ;TODO: Tests need a real LDAP server to run
+       #:phases (modify-phases %standard-phases
+                  (replace 'check
+                    (lambda* (#:key tests? #:allow-other-keys)
+                      (when tests?
+                        (invoke "nosetests" "-s" "test"))
+                      #t)))))
+    (native-inputs
+     `(("python-nose" ,python-nose)))
+    (propagated-inputs
+     `(("python-gssapi" ,python-gssapi)
+       ("python-pyasn1" ,python-pyasn1)))
+    (synopsis "Python LDAP client")
+    (description
+     "LDAP3 is a strictly RFC 4510 conforming LDAP V3 pure Python client
+library.")
+    (license license:lgpl3+)))
+
+(define-public python-boltons
+  (package
+    (name "python-boltons")
+    (version "20.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "boltons" version))
+       (sha256
+        (base32
+         "0lrr40qqj3ch8xarvyzbnbjs79pz5aywklllq53l347h1b8xnkg4"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/mahmoud/boltons")
+    (synopsis "Extensions to the Python standard library")
+    (description
+     "Boltons is a set of over 230 pure-Python utilities in the same spirit
+as — and yet conspicuously missing from — the standard library, including:
+
+@itemize
+@item Atomic file saving, bolted on with fileutils
+@item A highly-optimized OrderedMultiDict, in dictutils
+@item Two types of PriorityQueue, in queueutils
+@item Chunked and windowed iteration, in iterutils
+@item Recursive data structure iteration and merging, with iterutils.remap
+@item Exponential backoff functionality, including jitter, through
+iterutils.backoff
+@item A full-featured TracebackInfo type, for representing stack traces, in
+tbutils
+@end itemize")
+    (license license:bsd-3)))
+
+(define-public python-eliot
+  (package
+    (name "python-eliot")
+    (version "1.12.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "eliot" version))
+       (sha256
+        (base32 "0wabv7hk63l12881f4zw02mmj06583qsx2im0yywdjlj8f56vqdn"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'remove-journald-support
+           (lambda _
+             (for-each delete-file
+                     '("eliot/tests/test_journald.py"
+                       "eliot/journald.py"))
+             #t))
+         (add-after 'remove-journald-support 'remove-eliot-prettyprint-tests
+           ;; remove command-line tool's tests. TODO eliot-prettyprint should
+           ;; be installed and these tests should pass.
+           (lambda _
+             (delete-file "eliot/tests/test_prettyprint.py")
+             #t)))))
+    (propagated-inputs
+     `(("python-boltons" ,python-boltons)
+       ("python-pyrsistent" ,python-pyrsistent)
+       ("python-six" ,python-six)
+       ("python-zope-interface" ,python-zope-interface)))
+    (native-inputs
+     `(("python-black" ,python-black)
+       ("python-coverage" ,python-coverage)
+       ("python-dask" ,python-dask)
+       ("python-flake8" ,python-flake8)
+       ("python-hypothesis" ,python-hypothesis)
+       ("python-pytest" ,python-pytest)
+       ("python-setuptools" ,python-setuptools)
+       ("python-sphinx" ,python-sphinx)
+       ("python-sphinx-rtd-theme" ,python-sphinx-rtd-theme)
+       ("python-testtools" ,python-testtools)
+       ("python-twine" ,python-twine)
+       ("python-twisted" ,python-twisted)))
+    (home-page "https://github.com/itamarst/eliot/")
+    (synopsis "Eliot: the logging system that tells you why it happened")
+    (description
+     "@dfn{eliot} is a Python logging system that outputs causal chains of
+actions: actions can spawn other actions, and eventually they either succeed
+or fail. The resulting logs tell you the story of what your software did: what
+happened, and what caused it.")
+    (license license:asl2.0)))
+
+(define-public python-pem
+  (package
+    (name "python-pem")
+    (version "20.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pem" version))
+       (sha256
+        (base32
+         "1xh88ss279fprxnzd10dczmqwjhppbyvljm33zrg2mgybwd66qr7"))))
+    (build-system python-build-system)
+    (native-inputs
+     `(("python-certifi" ,python-certifi)
+       ("python-coverage" ,python-coverage)
+       ("python-pretend" ,python-pretend)
+       ("python-pyopenssl" ,python-pyopenssl)
+       ("python-pytest" ,python-pytest)
+       ("python-sphinx" ,python-sphinx)
+       ("python-twisted" ,python-twisted)))
+    (home-page "https://pem.readthedocs.io/")
+    (synopsis "Easy PEM file parsing in Python")
+    (description
+     "This package provides a Python module for parsing and splitting PEM files.")
+    (license license:expat)))
+
+(define-public python-txsni
+  ;; We need a few commits on top of 0.1.9 for compatibility with newer
+  ;; Python and OpenSSL.
+  (let ((commit "5014c141a7acef63e20fcf6c36fa07f0cd754ce1")
+        (revision "0"))
+    (package
+      (name "python-txsni")
+      (version (git-version "0.1.9" revision commit))
+      (home-page "https://github.com/glyph/txsni")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference (url home-page) (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32
+           "0imfxx4yjj1lbq0n5ad45al3wvv4qv96sivnc1r51i66mxi658z8"))))
+      (build-system python-build-system)
+      (propagated-inputs
+       `(("python-pyopenssl" ,python-pyopenssl)
+         ("python-service-identity" ,python-service-identity)
+         ("python-twisted" ,python-twisted)))
+      (synopsis "Run TLS servers with Twisted")
+      (description
+       "This package provides an easy-to-use SNI endpoint for use
+with the Twisted web framework.")
+      (license license:expat))))
+
+(define-public python-txacme
+  (package
+    (name "python-txacme")
+    (version "0.9.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "txacme" version))
+       (sha256
+        (base32 "1cplx4llq7i508w6fgwjdv9di7rsz9k9irfmzdfbiz6q6a0ykf1d"))))
+    (build-system python-build-system)
+    (propagated-inputs
+     `(("python-acme" ,python-acme)
+       ("python-attrs" ,python-attrs)
+       ("python-eliot" ,python-eliot)
+       ("python-josepy" ,python-josepy)
+       ("python-pem" ,python-pem)
+       ("python-treq" ,python-treq)
+       ("python-twisted" ,python-twisted)
+       ("python-txsni" ,python-txsni)))
+    (native-inputs
+     `(("python-fixtures" ,python-fixtures)
+       ("python-hypothesis" ,python-hypothesis)
+       ("python-mock" ,python-mock)
+       ("python-service-identity"
+        ,python-service-identity)
+       ("python-testrepository" ,python-testrepository)
+       ("python-testscenarios" ,python-testscenarios)
+       ("python-testtools" ,python-testtools)))
+    (home-page "https://github.com/twisted/txacme")
+    (synopsis "Twisted implexmentation of the ACME protocol")
+    (description
+     "ACME is Automatic Certificate Management Environment, a protocol that
+allows clients and certificate authorities to automate verification and
+certificate issuance.  The ACME protocol is used by the free Let's Encrypt
+Certificate Authority.
+
+txacme is an implementation of the protocol for Twisted, the event-driven
+networking engine for Python.")
+    (license license:expat)))
+
+(define-public python-pysaml2
+  (package
+    (name "python-pysaml2")
+    (version "5.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pysaml2" version))
+       (sha256
+        (base32
+         "1h8cmxh9cvxhrdfmkh92wg6zpxmhi2fixq1cy4hxismmaar7bsny"))))
+    (build-system python-build-system)
+    (propagated-inputs
+     `(("python-cryptography" ,python-cryptography)
+       ("python-dateutil" ,python-dateutil)
+       ("python-defusedxml" ,python-defusedxml)
+       ("python-pyopenssl" ,python-pyopenssl)
+       ("python-pytz" ,python-pytz)
+       ("python-requests" ,python-requests)
+       ("python-six" ,python-six)))
+    (home-page "https://idpy.org")
+    (synopsis "Python implementation of SAML Version 2 Standard")
+    (description
+     "PySAML2 is a pure python implementation of SAML Version 2 Standard.
+It contains all necessary pieces for building a SAML2 service provider or
+an identity provider.  The distribution contains examples of both.
+
+This package was originally written to work in a WSGI environment, but
+there are extensions that allow you to use it with other frameworks.")
     (license license:asl2.0)))

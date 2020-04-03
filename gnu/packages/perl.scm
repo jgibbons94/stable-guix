@@ -61,7 +61,8 @@
   #:use-module (gnu packages perl-web)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages readline)
-  #:use-module (gnu packages textutils))
+  #:use-module (gnu packages textutils)
+  #:use-module (gnu packages web))
 
 ;;;
 ;;; Please: Try to add new module packages in alphabetic order.
@@ -1306,6 +1307,34 @@ that original method.  @code{around} is run in place of the original method,
 with a hook to easily call that original method.")
     (license (package-license perl))))
 
+(define-public perl-class-mix
+  (package
+    (name "perl-class-mix")
+    (version "0.006")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/Z/ZE/ZEFRAM/Class-Mix-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "02vwzzqn1s24g525arbrjh9s9j0y1inp3wbr972gh51ri51zciw7"))))
+    (build-system perl-build-system)
+    (native-inputs
+     `(("perl-module-build" ,perl-module-build)
+       ("perl-test-pod" ,perl-test-pod)
+       ("perl-test-pod-coverage" ,perl-test-pod-coverage)))
+    (propagated-inputs
+     `(("perl-params-classify" ,perl-params-classify)))
+    (home-page "https://metacpan.org/release/Class-Mix")
+    (synopsis "Dynamic class mixing")
+    (description "The @code{mix_class} function provided by this
+module dynamically generates anonymous classes with specified
+inheritance.  This is useful where an incomplete class requires use of
+a mixin in order to become instantiable.")
+    (license perl-license)))
+
 (define-public perl-class-singleton
   (package
     (name "perl-class-singleton")
@@ -1798,6 +1827,40 @@ CPAN::Meta object are present.")
 versa.")
     (license (package-license perl))))
 
+(define-public perl-crypt-eksblowfish
+  (package
+    (name "perl-crypt-eksblowfish")
+    (version "0.009")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/Z/ZE/ZEFRAM/Crypt-Eksblowfish-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "0k01aw3qb2s4m1w4dqsc9cycyry1zg3wabdym4vp4421b1ni5irw"))))
+    (build-system perl-build-system)
+    (native-inputs
+     `(("perl-module-build" ,perl-module-build)
+       ("perl-test-pod" ,perl-test-pod)
+       ("perl-test-pod-coverage" ,perl-test-pod-coverage)))
+    (propagated-inputs
+     `(("perl-class-mix" ,perl-class-mix)))
+    (home-page "https://metacpan.org/release/Crypt-Eksblowfish")
+    (synopsis "The Eksblowfish block cipher")
+    (description "Eksblowfish is a variant of the Blowfish cipher,
+modified to make the key setup very expensive.  This doesn't make it
+significantly cryptographically stronger but is intended to hinder
+brute-force attacks.  Eksblowfish is a parameterised (family-keyed)
+cipher.  It takes a cost parameter that controls how expensive the key
+scheduling is.  It also takes a family key, known as the \"salt\".
+Cost and salt parameters together define a cipher family.  Within each
+family, the key determines the encryption function.  This distribution
+also includes an implementation of @code{bcrypt}, the Unix crypt()
+password hashing algorithm based on Eksblowfish.")
+    (license perl-license)))
+
 (define-public perl-crypt-randpasswd
   (package
     (name "perl-crypt-randpasswd")
@@ -1821,6 +1884,36 @@ Pronounceable Passwords\".  This code is a re-engineering of the program
 contained in Appendix A of FIPS Publication 181, \"Standard for Automated
 Password Generator\".")
     (license (package-license perl))))
+
+(define-public perl-crypt-rijndael
+  (package
+    (name "perl-crypt-rijndael")
+    (version "1.14")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/L/LE/LEONT/Crypt-Rijndael-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "03l5nwq97a8q9na4dpd4m3r7vrwpranx225vw8xm40w7zvgw6lb4"))))
+    (build-system perl-build-system)
+    (home-page "https://metacpan.org/release/Crypt-Rijndael")
+    (synopsis "Crypt::CBC compliant Rijndael encryption module")
+    (description "This module implements the Rijndael cipher which has
+been selected as the Advanced Encryption Standard.  The keysize for
+Rijndael is 32 bytes.  The blocksize is 16 bytes (128 bits).  The
+supported encryption modes are:
+
+@itemize
+@item @code{MODE_CBC}---Cipher Block Chaining
+@item @code{MODE_CFB}---Cipher feedback
+@item @code{MODE_CTR}---Counter mode
+@item @code{MODE_ECB}---Electronic cookbook mode
+@item @code{MODE_OFB}---Output feedback
+@end itemize")
+    (license gpl3)))
 
 (define-public perl-crypt-rc4
   (package
@@ -1956,6 +2049,44 @@ input.")
 they are copies of each other.")
     (license (package-license perl))))
 
+(define-public perl-data-entropy
+  (package
+    (name "perl-data-entropy")
+    (version "0.007")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/Z/ZE/ZEFRAM/Data-Entropy-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "1r176jjzir2zg5kidx85f7vzi6jsw7ci9vd4kvbr9183lfhw8496"))))
+    (build-system perl-build-system)
+    (native-inputs
+     `(("perl-module-build" ,perl-module-build)
+       ("perl-test-pod" ,perl-test-pod)
+       ("perl-test-pod-coverage" ,perl-test-pod-coverage)))
+    (propagated-inputs
+     `(("perl-crypt-rijndael" ,perl-crypt-rijndael)
+       ("perl-data-float" ,perl-data-float)
+       ("perl-http-lite" ,perl-http-lite)
+       ("perl-params-classify" ,perl-params-classify)))
+    (home-page "https://metacpan.org/release/Data-Entropy")
+    (synopsis "Entropy (randomness) management")
+    (description "@code{Data::Entropy} provides modules relating to
+the generation and use of entropy.  The Data::Entropy::Source class
+manages the entropy coming from a particular source.  This class acts
+as a layer over a raw entropy source, which may be a normal I/O handle
+or a special-purpose class.  The Data::Entropy::RawSource::* classes
+provide fundamental sources of entropy.  The sources specially
+supported are an OS-supplied entropy collector, downloads from servers
+on the Internet, and cryptographic fake entropy.  The
+Data::Entropy::Algorithms module contains a collection of fundamental
+algorithms that use entropy.  There are random number generators and
+functions to shuffle arrays.")
+    (license perl-license)))
+
 (define-public perl-data-uniqid
   (package
     (name "perl-data-uniqid")
@@ -2035,6 +2166,34 @@ statement.  It handles self-referential structures correctly.")
     (description "Data::Dumper::Concise provides a dumper with Less
 indentation and newlines plus sub deparsing.")
     (license (package-license perl))))
+
+(define-public perl-data-float
+  (package
+    (name "perl-data-float")
+    (version "0.013")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/Z/ZE/ZEFRAM/Data-Float-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "12ji4yf3nc965rqqgfhr96w7irpm6n1g15nivfxvhc49hlym5cg2"))))
+    (build-system perl-build-system)
+    (native-inputs
+     `(("perl-module-build" ,perl-module-build)
+       ("perl-test-pod" ,perl-test-pod)
+       ("perl-test-pod-coverage" ,perl-test-pod-coverage)))
+    (home-page "https://metacpan.org/release/Data-Float")
+    (synopsis "Details of the floating point data type")
+    (description "@code{Data::Float} is about the native floating
+point numerical data type.  A floating point number is one of the
+types of datum that can appear in the numeric part of a Perl scalar.
+This module supplies constants describing the native floating point
+type, classification functions and functions to manipulate floating
+point values at a low level.")
+    (license perl-license)))
 
 (define-public perl-data-optlist
   (package
@@ -2824,6 +2983,39 @@ format of RSS 1.0.  It can be used to parse these formats in order to create
 the appropriate objects.")
     (license (package-license perl))))
 
+(define-public perl-devel-callchecker
+  (package
+    (name "perl-devel-callchecker")
+    (version "0.008")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/Z/ZE/ZEFRAM/Devel-CallChecker-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "1p0ij2k2i81zhl7064h9ghld1w5xy2zsbghkpdzm2hjryl5lwn2x"))))
+    (build-system perl-build-system)
+    (native-inputs
+     `(("perl-module-build" ,perl-module-build)
+       ("perl-test-pod" ,perl-test-pod)
+       ("perl-test-pod-coverage" ,perl-test-pod-coverage)))
+    (propagated-inputs
+     `(("perl-b-hooks-op-check" ,perl-b-hooks-op-check)
+       ("perl-dynaloader-functions" ,perl-dynaloader-functions)))
+    (home-page "https://metacpan.org/release/Devel-CallChecker")
+    (synopsis "Custom op checking attached to subroutines")
+    (description "This module makes some new features of the Perl
+5.14.0 C API available to XS modules running on older versions of
+Perl.  The features are centred around the function
+@code{cv_set_call_checker}, which allows XS code to attach a magical
+annotation to a Perl subroutine, resulting in resolvable calls to that
+subroutine being mutated at compile time by arbitrary C code.  This
+module makes @code{cv_set_call_checker} and several supporting
+functions available.")
+    (license perl-license)))
+
 (define-public perl-devel-caller
   (package
     (name "perl-devel-caller")
@@ -3220,6 +3412,32 @@ SHA-1 message digest algorithm for use by Perl programs.")
     (description "This module allows you to specify conflicting versions of
 modules separately and deal with them after the module is done installing.")
     (license (package-license perl))))
+
+(define-public perl-dynaloader-functions
+  (package
+    (name "perl-dynaloader-functions")
+    (version "0.003")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/Z/ZE/ZEFRAM/DynaLoader-Functions-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "10x13q920j9kid7vmbj6fiaz153042dy4mwdmpzrdrxw2ir39ciy"))))
+    (build-system perl-build-system)
+    (native-inputs
+     `(("perl-module-build" ,perl-module-build)
+       ("perl-test-pod" ,perl-test-pod)
+       ("perl-test-pod-coverage" ,perl-test-pod-coverage)))
+    (home-page "https://metacpan.org/release/DynaLoader-Functions")
+    (synopsis "Deconstructed dynamic C library loading")
+    (description "This module provides a function-based interface to
+dynamic loading as used by Perl.  Some details of dynamic loading are
+very platform-dependent, so correct use of these functions requires
+the programmer to be mindfulof the space of platform variations.")
+    (license perl-license)))
 
 (define-public perl-encode-detect
   (package
@@ -7259,6 +7477,40 @@ is particularly useful for debugging.")
 operations that can be done in parallel where the number of
 processes to be forked off should be limited.")
     (license (package-license perl))))
+
+(define-public perl-params-classify
+  (package
+    (name "perl-params-classify")
+    (version "0.015")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/Z/ZE/ZEFRAM/Params-Classify-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "052r198xyrsv8wz21gijdigz2cgnidsa37nvyfzdiz4rv1fc33ir"))))
+    (build-system perl-build-system)
+    (native-inputs
+     `(("perl-module-build" ,perl-module-build)
+       ("perl-test-pod" ,perl-test-pod)
+       ("perl-test-pod-coverage" ,perl-test-pod-coverage)))
+    (propagated-inputs
+     `(("perl-devel-callchecker" ,perl-devel-callchecker)))
+    (home-page "https://metacpan.org/release/Params-Classify")
+    (synopsis "Argument type classification")
+    (description "This module provides various type-testing functions.
+These are intended for functions that care what type of data they are
+operating on.  There are two flavours of function.  Functions of the
+first flavour provide type classification only.  Functions of the
+second flavour also check that an argument is of an expected type.
+The type enforcement functions handle only the simplest requirements
+for arguments of the types handled by the classification functions.
+Enforcement of more complex types may be built using the
+classification functions, or it may be more convenient to use a module
+designed for the more complex job, such as @code{Params::Validate}")
+    (license perl-license)))
 
 (define-public perl-params-util
   (package

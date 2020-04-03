@@ -34,6 +34,7 @@
 ;;; Copyright © 2020 Ivan Vilata i Balaguer <ivan@selidor.net>
 ;;; Copyright © 2020 Brice Waegeneire <brice@waegenei.re>
 ;;; Copyright © 2020 Damien Cassou <damien@cassou.me>
+;;; Copyright © 2020 John Soo <jsoo1@asu.edu>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -1062,7 +1063,7 @@ Escape key when Left Control is pressed and released on its own.")
 (define-public libwacom
   (package
     (name "libwacom")
-    (version "1.2")
+    (version "1.3")
     (source (origin
               (method url-fetch)
               (uri (string-append
@@ -1070,7 +1071,7 @@ Escape key when Left Control is pressed and released on its own.")
                     "libwacom-" version "/libwacom-" version ".tar.bz2"))
               (sha256
                (base32
-                "1hv3z2qkvycqcyv99zfpbbgrlbyppdq8kk2y9x51578mwbgcy162"))))
+                "0g48cdg2qpvrr2nk8ccibjg3iv7iqskdv66izxacqx70w47y1771"))))
     (build-system glib-or-gtk-build-system)
     (arguments
      `(#:configure-flags '("--disable-static")))
@@ -1211,7 +1212,7 @@ protocol.")
 (define-public xscreensaver
   (package
     (name "xscreensaver")
-    (version "5.43")
+    (version "5.44")
     (source
      (origin
        (method url-fetch)
@@ -1219,7 +1220,7 @@ protocol.")
         (string-append "https://www.jwz.org/xscreensaver/xscreensaver-"
                        version ".tar.gz"))
        (sha256
-        (base32 "1571pj1a9998sq14y9366s2rw9wd2kq3l3dvvsk610vyd0fki3qm"))))
+        (base32 "15bv05vpfjwsrqbazrjmm382jd7vvw0mp6y9vasn6wvxzjf0in3k"))))
     (build-system gnu-build-system)
     (arguments
      `(#:tests? #f                      ; no check target
@@ -1235,7 +1236,7 @@ protocol.")
                            "--without-readdisplay")
        #:make-flags (list (string-append "AD_DIR="
                                          (assoc-ref %outputs "out")
-                                         "/usr/lib/X11/app-defaults"))))
+                                         "/lib/X11/app-defaults"))))
     (native-inputs
      `(("pkg-config" ,pkg-config)
        ("intltool" ,intltool)))
@@ -2019,6 +2020,42 @@ can optionally use some appearance settings from XSettings, tint2 and GTK.")
     (home-page "https://jgmenu.github.io/")
     (license license:gpl2)))
 
+(define-public xwallpaper
+  (package
+    (name "xwallpaper")
+    (version "0.6.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/stoeckmann/xwallpaper")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32
+         "175fzifvia58vah2x7509drvfn3xfv5d9szgh9x1w1a1w8rcs2hx"))))
+    (build-system gnu-build-system)
+    (native-inputs
+     `(("autoconf" ,autoconf)
+       ("automake" ,automake)
+       ("pkg-config" ,pkg-config)))
+    (inputs
+     `(("libjpeg-turbo" ,libjpeg-turbo)
+       ("libpng" ,libpng)
+       ("libxpm" ,libxpm)
+       ("pixman" ,pixman)
+       ("xcb-util" ,xcb-util)
+       ("xcb-util-image" ,xcb-util-image)))
+    (home-page "https://github.com/stoeckmann/xwallpaper")
+    (synopsis "Wallpaper setting utility for X")
+    (description
+     "The xwallpaper utility allows you to set image files as your X
+wallpaper. JPEG, PNG, and XPM file formats are supported.
+
+The wallpaper is also advertised to programs which support semi-transparent
+backgrounds.")
+    (license license:isc)))
+
 (define-public xwrits
   (package
     (name "xwrits")
@@ -2169,17 +2206,17 @@ tools to complement clipnotify.")
     (license license:public-domain)))
 
 (define-public clipmenu
-  (let ((commit "a495bcc7a4ab125182a661c5808364f66938a87c")
+  (let ((commit "bcbe7b144598db4a103f14e8408c4b7327d6d5e1")
         (revision "1"))
     (package
       (name "clipmenu")
-      (version (string-append "5.6.0-"
+      (version (string-append "6.0.1-"
                               revision "." (string-take commit 7)))
       (source
        (origin
          (method git-fetch)
          (uri (git-reference
-               (url "https://github.com/cdown/clipnotify.git")
+               (url "https://github.com/cdown/clipmenu.git")
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256

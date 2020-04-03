@@ -5,7 +5,7 @@
 ;;; Copyright © 2014, 2015, 2016, 2017, 2018, 2019, 2020 Mark H Weaver <mhw@netris.org>
 ;;; Copyright © 2015 Federico Beffa <beffa@fbengineering.ch>
 ;;; Copyright © 2015 Taylan Ulrich Bayırlı/Kammer <taylanbayirli@gmail.com>
-;;; Copyright © 2015, 2016, 2017, 2018 Efraim Flashner <efraim@flashner.co.il>
+;;; Copyright © 2015, 2016, 2017, 2018, 2020 Efraim Flashner <efraim@flashner.co.il>
 ;;; Copyright © 2016 Christopher Allan Webber <cwebber@dustycloud.org>
 ;;; Copyright © 2016, 2017, 2018, 2019, 2020 Tobias Geerinckx-Rice <me@tobias.gr>
 ;;; Copyright © 2016, 2017 Alex Kost <alezost@gmail.com>
@@ -2397,14 +2397,14 @@ user-space processes.")
     (name "unionfs-fuse")
     (version "2.0")
     (source (origin
-              (method url-fetch)
-              (uri (string-append
-                    "https://github.com/rpodgorny/unionfs-fuse/archive/v"
-                    version ".tar.gz"))
-              (file-name (string-append name "-" version ".tar.gz"))
+              (method git-fetch)
+              (uri (git-reference
+                     (url "https://github.com/rpodgorny/unionfs-fuse")
+                     (commit (string-append "v" version))))
+              (file-name (git-file-name name version))
               (sha256
                (base32
-                "0hsn8l1iblvx27bpd4dvnvnbh9ri3sv2f9xzpsnfz3379kb7skgj"))))
+                "0lb8zgdxnjy2fjr2284hvdfn7inc1in44ynzgcr66x54bxzvynj6"))))
     (build-system cmake-build-system)
     (native-inputs
      `(("python" ,python)))
@@ -2918,9 +2918,6 @@ time.")
                   (("@bindir@")
                    (string-append out "/bin")))
                 #t)))))))))
-
-(define-public eudev-with-hwdb
-  (deprecated-package "eudev-with-hwdb" eudev))
 
 (define-public lvm2
   (package
@@ -4371,6 +4368,40 @@ repair and easy administration.")
 from the btrfs-progs package.  It is meant to be used in initrds.")
     (license (package-license btrfs-progs))))
 
+(define-public cramfs-tools
+  (package
+    (name "cramfs-tools")
+    (home-page "https://github.com/npitre/cramfs-tools")
+    (version "2.1")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url home-page)
+                    (commit (string-append "v" version))))
+              (sha256
+               (base32 "183rfqqyzx52q0vxicdgf0p984idh3rqkvzfb93gjvyzfhc15c0p"))
+              (file-name (git-file-name name version))))
+    (build-system gnu-build-system)
+    (arguments
+     '(#:tests? #f                      ; No tests.
+       #:phases
+       (modify-phases %standard-phases
+         (delete 'configure)
+         (replace 'install
+           (lambda* (#:key outputs #:allow-other-keys)
+             (let ((out (assoc-ref outputs "out")))
+               (install-file "mkcramfs" (string-append out "/sbin"))
+               (install-file "cramfsck" (string-append out "/sbin")))
+             #t)))))
+    (inputs
+     `(("zlib" ,zlib)))
+    (synopsis "Tools to manage Cramfs file systems")
+    (description "Cramfs is a Linux file system designed to be simple, small,
+and to compress things well.  It is used on a number of embedded systems and
+small devices.  This version has additional features such as uncompressed
+blocks and random block placement.")
+    (license license:gpl2+)))
+
 (define-public compsize
   (package
     (name "compsize")
@@ -5348,7 +5379,7 @@ monitoring tools for Linux.  These include @code{mpstat}, @code{iostat},
 (define-public light
   (package
     (name "light")
-    (version "1.2.1")
+    (version "1.2.2")
     (source
      (origin
        (method git-fetch)
@@ -5356,7 +5387,7 @@ monitoring tools for Linux.  These include @code{mpstat}, @code{iostat},
              (url "https://github.com/haikarainen/light.git")
              (commit (string-append "v" version))))
        (sha256
-        (base32 "0zrjipd392bzjvxx0rjrb0cgi0ix1d83fwgw1mcy8kc4d16cgyjg"))
+        (base32 "1a70zcf88ifsnwll486aicjnh48zisdf8f7vi34ihw61kdadsq9s"))
        (file-name (git-file-name name version))))
     (build-system gnu-build-system)
     (arguments
@@ -5650,13 +5681,13 @@ used by nftables.")
     (build-system gnu-build-system)
     (arguments `(#:configure-flags
                  '("--disable-man-doc"))) ; FIXME: Needs docbook2x.
-    (inputs `(("bison" ,bison)
-              ("flex" ,flex)
-              ("gmp" ,gmp)
+    (inputs `(("gmp" ,gmp)
               ("libmnl" ,libmnl)
               ("libnftnl" ,libnftnl)
               ("readline" ,readline)))
-    (native-inputs `(("pkg-config" ,pkg-config)))
+    (native-inputs `(("pkg-config" ,pkg-config)
+                     ("bison" ,bison)
+                     ("flex" ,flex)))
     (home-page "https://www.nftables.org")
     (synopsis "Userspace utility for Linux packet filtering")
     (description "nftables is the project that aims to replace the existing
@@ -5870,9 +5901,11 @@ the MTP device as a file system.")
       (base32 "1javw97yw0qvjmj14js8vw6nsfyf2xc0kfiyq5f2hsp0553w2cdq"))))
    (build-system gnu-build-system)
    (arguments `(#:configure-flags '("--disable-silent-rules")))
-   (native-inputs `(("pkg-config" ,pkg-config)))
-   (inputs `(("expat" ,expat) ("libcap" ,libcap) ("check" ,check)
-             ("groff" ,groff)           ; for tests
+   (native-inputs `(("groff" ,groff) ; for tests
+                    ("pkg-config" ,pkg-config)))
+   (inputs `(("check" ,check)
+             ("expat" ,expat)
+             ("libcap" ,libcap)
              ("libselinux" ,libselinux)))
    (synopsis "Utility to show process environment")
    (description "Procenv is a command-line tool that displays as much detail about

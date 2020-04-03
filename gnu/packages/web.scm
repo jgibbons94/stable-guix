@@ -40,6 +40,7 @@
 ;;; Copyright © 2020 Alexandros Theodotou <alex@zrythm.org>
 ;;; Copyright © 2020 Pierre Neidhardt <mail@ambrevar.xyz>
 ;;; Copyright © 2018, 2019, 2020 Björn Höfling <bjoern.hoefling@bjoernhoefling.de>
+;;; Copyright © 2020 Paul Garlick <pgarlick@tourbillion-technology.com>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -149,14 +150,14 @@
 (define-public httpd
   (package
     (name "httpd")
-    (version "2.4.41")
+    (version "2.4.43")
     (source (origin
              (method url-fetch)
              (uri (string-append "mirror://apache/httpd/httpd-"
                                  version ".tar.bz2"))
              (sha256
               (base32
-               "0h7a31yxwyh7h521frnmlppl0h7sh9icc3ka6vlmlcg5iwllhg8k"))))
+               "0hqgw47r3p3521ygkkqs8s30s5crm683081avj6330gwncm6b5x4"))))
     (build-system gnu-build-system)
     (native-inputs `(("pcre" ,pcre "bin")))       ;for 'pcre-config'
     (inputs `(("apr" ,apr)
@@ -3253,6 +3254,35 @@ IO::Socket::INET, so you can perform socket operations directly on it too.")
      "The HTTP::Date module provides functions that deal with date formats
 used by the HTTP protocol (and then some more).")
     (home-page "https://metacpan.org/release/HTTP-Date")))
+
+(define-public perl-http-lite
+  (package
+    (name "perl-http-lite")
+    (version "2.44")
+    (source
+     (origin
+      (method url-fetch)
+      (uri (string-append
+            "mirror://cpan/authors/id/N/NE/NEILB/HTTP-Lite-"
+            version ".tar.gz"))
+      (sha256
+       (base32
+        "0z77nflj8zdcfg70kc93glq5kmd6qxn2nf7h70x4xhfg25wkvr1q"))))
+    (build-system perl-build-system)
+    (native-inputs `(("perl-cgi" ,perl-cgi)))
+    (home-page "https://metacpan.org/release/HTTP-Lite")
+    (synopsis "Lightweight HTTP implementation")
+    (description "@code{HTTP::Lite} is a stand-alone lightweight
+HTTP/1.1 implementation for perl.  It is intended for use in
+situations where it is desirable to install the minimal number of
+modules to achieve HTTP support.  @code{HTTP::Lite} is ideal for
+CGI (or mod_perl) programs or for bundling for redistribution with
+larger packages where only HTTP GET and POST functionality are
+necessary.  @code{HTTP::Lite} is compliant with the Host header,
+necessary for name based virtual hosting, and supports proxies.
+Additionally, @code{HTTP::Lite} supports a callback to allow
+processing of request data as it arrives.")
+    (license license:perl-license)))
 
 (define-public perl-http-message
   (package

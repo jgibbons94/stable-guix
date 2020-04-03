@@ -683,22 +683,22 @@ When TARGET is true, use it as the cross-compilation target triplet."
     (and (string? obj) (store-path? obj)))
 
   (with-monad %store-monad
-    (mapm %store-monad
-          (match-lambda
-            (((? struct? thing) sub-drv ...)
-             (mlet %store-monad ((obj (lower-object
-                                       thing system #:target target)))
-               (return (match obj
-                         ((? derivation? drv)
-                          (let ((outputs (if (null? sub-drv)
-                                             '("out")
-                                             sub-drv)))
-                            (derivation-input drv outputs)))
-                         ((? store-item? item)
-                          item)))))
-            (((? store-item? item))
-             (return item)))
-          inputs)))
+    (mapm/accumulate-builds
+     (match-lambda
+       (((? struct? thing) sub-drv ...)
+        (mlet %store-monad ((obj (lower-object
+                                  thing system #:target target)))
+          (return (match obj
+                    ((? derivation? drv)
+                     (let ((outputs (if (null? sub-drv)
+                                        '("out")
+                                        sub-drv)))
+                       (derivation-input drv outputs)))
+                    ((? store-item? item)
+                     item)))))
+       (((? store-item? item))
+        (return item)))
+     inputs)))
 
 (define* (lower-reference-graphs graphs #:key system target)
   "Given GRAPHS, a list of (FILE-NAME INPUT ...) lists for use as a
@@ -730,7 +730,7 @@ names and file names suitable for the #:allowed-references argument to
                                                #:target target)))
           (return (derivation->output-path drv))))))
 
-    (mapm %store-monad lower lst)))
+    (mapm/accumulate-builds lower lst)))
 
 (define default-guile-derivation
   ;; Here we break the abstraction by talking to the higher-level layer.

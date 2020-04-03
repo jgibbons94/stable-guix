@@ -29,12 +29,13 @@
 ;;; Copyright © 2018 Marius Bakke <mbakke@fastmail.com>
 ;;; Copyright © 2018 Eric Brown <brown@fastmail.com>
 ;;; Copyright © 2018 Julien Lepiller <julien@lepiller.eu>
-;;; Copyright © 2018 Amin Bandali <mab@gnu.org>
+;;; Copyright © 2018 Amin Bandali <bandali@gnu.org>
 ;;; Copyright © 2019 Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;;; Copyright © 2019 Steve Sprang <scs@stevesprang.com>
 ;;; Copyright © 2019 Robert Smith <robertsmith@posteo.net>
 ;;; Copyright © 2020 Jakub Kądziołka <kuba@kadziolka.net>
 ;;; Copyright © 2020 Felix Gruber <felgru@posteo.net>
+;;; Copyright © 2020 R Veera Kumar <vkor@vkten.in>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -62,6 +63,7 @@
   #:use-module (guix utils)
   #:use-module ((guix build utils) #:select (alist-replace))
   #:use-module (guix build-system cmake)
+  #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system python)
   #:use-module (guix build-system ruby)
@@ -79,6 +81,7 @@
   #:use-module (gnu packages dbm)
   #:use-module (gnu packages documentation)
   #:use-module (gnu packages elf)
+  #:use-module (gnu packages file)
   #:use-module (gnu packages flex)
   #:use-module (gnu packages fltk)
   #:use-module (gnu packages fontutils)
@@ -86,8 +89,10 @@
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages gd)
   #:use-module (gnu packages ghostscript)
+  #:use-module (gnu packages glib)
   #:use-module (gnu packages graphviz)
   #:use-module (gnu packages gtk)
+  #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages java)
   #:use-module (gnu packages less)
@@ -1649,9 +1654,6 @@ script files.")
                   "qscintilla2_qt5"))
                #t))))))))
 
-(define-public qtoctave
-  (deprecated-package "qtoctave" octave))
-
 (define-public opencascade-oce
   (package
     (name "opencascade-oce")
@@ -3125,7 +3127,7 @@ directly in C++, or quick conversion of research code into production
 environments.  It can be used for machine learning, pattern recognition,
 signal processing, bioinformatics, statistics, econometrics, etc.  The library
 provides efficient classes for vectors, matrices and cubes, as well as 150+
-associated functions (eg. contiguous and non-contiguous submatrix views).")
+associated functions (e.g., contiguous and non-contiguous submatrix views).")
     (license license:asl2.0)))
 
 (define-public muparser
@@ -4213,6 +4215,10 @@ as equations, scalars, vectors, and matrices.")
                   (guix build utils))
        #:phases
        (modify-phases %standard-phases
+         (add-after 'unpack 'enable-bytecode-determinism
+           (lambda _
+             (setenv "PYTHONHASHSEED" "0")
+             #t))
          (add-after 'unpack 'fix-compatability
            ;; Versions after 4.8.3 have immintrin.h IFDEFed for Windows only.
            (lambda _
@@ -5319,3 +5325,112 @@ researchers and developers alike to get started on SAT.")
       (home-page
        "http://minisat.se/MiniSat.html")
       (license license:expat))))
+
+(define-public libqalculate
+  (package
+    (name "libqalculate")
+    (version "3.8.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/Qalculate/libqalculate/")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1vbaza9c7159xf2ym90l0xkyj2mp6c3hbghhsqn29yvz08fda9df"))))
+    (build-system gnu-build-system)
+    (native-inputs
+     `(("pkg-config" ,pkg-config)
+       ("gettext" ,gettext-minimal)
+       ("intltool" ,intltool)
+       ("automake" ,automake)
+       ("autoconf" ,autoconf)
+       ("libtool" ,libtool)
+       ("doxygen" ,doxygen)
+       ("file" ,file)))
+    (inputs
+     `(("gmp" ,gmp)
+       ("mpfr" ,mpfr)
+       ("libxml2" ,libxml2)
+       ("curl" ,curl)
+       ("icu4c" ,icu4c)
+       ("gnuplot" ,gnuplot)
+       ("readline" ,readline)
+       ("libiconv" ,libiconv)))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-before 'bootstrap 'setenv
+           ;; Prevent the autogen.sh script to carry out the configure
+           ;; script, which has not yet been patched to replace /bin/sh.
+           (lambda _
+             (setenv "NOCONFIGURE" "TRUE")
+             #t)))))
+    (home-page "https://qalculate.github.io/")
+    (synopsis "Multi-purpose cli desktop calculator and library")
+    (description
+     "Libqalculate is a multi-purpose cli desktop calculator and library.
+It provides basic and advanced functionality.  Features include customizable
+functions, unit calculations, and conversions, physical constants, symbolic
+calculations (including integrals and equations), arbitrary precision,
+uncertainity propagation, interval arithmetic, plotting and a user-friendly
+cli.")
+    (license license:gpl2+)))
+
+(define-public qalculate-gtk
+  (package
+    (name "qalculate-gtk")
+    (version "3.8.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/Qalculate/qalculate-gtk/")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0nsg6dzg5r7rzqr671nvrf1c50rjwpz7bxv5f20i4s7agizgv840"))))
+    (build-system glib-or-gtk-build-system)
+    (native-inputs
+     `(("pkg-config" ,pkg-config)
+       ("intltool" ,intltool)
+       ("automake" ,automake)
+       ("autoconf" ,autoconf)
+       ("libtool" ,libtool)
+       ("file" ,file)))
+    (inputs
+     `(("gmp" ,gmp)
+       ("mpfr" ,mpfr)
+       ("libqalculate" ,libqalculate)
+       ("libxml2" ,libxml2)
+       ("glib" ,glib)
+       ("gtk+" ,gtk+)))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-before 'bootstrap 'setenv
+           ;; Prevent the autogen.sh script to carry out the configure
+           ;; script, which has not yet been patched to replace /bin/sh.
+           (lambda _
+             (setenv "NOCONFIGURE" "TRUE")
+             #t))
+         (add-before 'check 'add-pot-file
+           ;; the file contains translations and are currently not in use
+           ;; left out on purpose so add it to POTFILES.skip
+           (lambda _
+             (with-output-to-file "po/POTFILES.skip"
+               (lambda _
+                 (format #t "data/shortcuts.ui~%")
+                 #t))
+             #t)))))
+    (home-page "https://qalculate.github.io/")
+    (synopsis "Multi-purpose graphical desktop calculator")
+    (description
+     "Qalculate-gtk is the GTK frontend for libqalculate.  It is a
+multi-purpose GUI desktop calculator.  It provides basic and advanced
+functionality.  Features include customizable functions, unit calculations,
+and conversions, physical constants, symbolic calculations (including
+integrals and equations), arbitrary precision, uncertainity propagation,
+interval arithmetic, plotting.")
+    (license license:gpl2+)))

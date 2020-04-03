@@ -8,7 +8,7 @@
 ;;; Copyright © 2015 Paul van der Walt <paul@denknerd.org>
 ;;; Copyright © 2015, 2016, 2018 Eric Bavier <bavier@member.fsf.org>
 ;;; Copyright © 2015 Andreas Enge <andreas@enge.fr>
-;;; Copyright © 2015, 2016, 2017, 2018, 2019 Efraim Flashner <efraim@flashner.co.il>
+;;; Copyright © 2015, 2016, 2017, 2018, 2019, 2020 Efraim Flashner <efraim@flashner.co.il>
 ;;; Copyright © 2016 Christopher Allan Webber <cwebber@dustycloud.org>
 ;;; Copyright © 2016 Al McElrath <hello@yrns.org>
 ;;; Copyright © 2016 Leo Famulari <leo@famulari.name>
@@ -29,6 +29,8 @@
 ;;; Copyright © 2018 Gábor Boskovits <boskovits@gmail.com>
 ;;; Copyright © 2018, 2019, 2020 Ricardo Wurmus <rekado@elephly.net>
 ;;; Copyright © 2019 Tanguy Le Carrour <tanguy@bioneland.org>
+;;; Copyright © 2020 Vincent Legoll <vincent.legoll@gmail.com>
+;;; Copyright © 2020 Justus Winter <justus@sequoia-pgp.org>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -81,6 +83,7 @@
   #:use-module (gnu packages guile)
   #:use-module (gnu packages guile-xyz)
   #:use-module (gnu packages flex)
+  #:use-module (gnu packages haskell-xyz)
   #:use-module (gnu packages kerberos)
   #:use-module (gnu packages libcanberra)
   #:use-module (gnu packages libevent)
@@ -144,14 +147,14 @@
 (define-public mailutils
   (package
     (name "mailutils")
-    (version "3.8")
+    (version "3.9")
     (source (origin
              (method url-fetch)
              (uri (string-append "mirror://gnu/mailutils/mailutils-"
                                  version ".tar.xz"))
              (sha256
               (base32
-               "1wkn9ch664477r4d8jk9153w5msljsbj99907k7zgzpmywbs6ba7"))))
+               "1g1xf2lal04nsnf1iym9n9n0wxjpqbcr9nysxpm98v4pniinqwsz"))))
     (build-system gnu-build-system)
     (arguments
      `(#:phases
@@ -166,7 +169,8 @@
              ;; Tests try to invoke 'mda' such that it looks up the
              ;; 'root' user, which does not exist in the build
              ;; environment.
-             (substitute* "mda/tests/testsuite"
+             (substitute* '("mda/mda/tests/testsuite"
+                            "mda/lmtpd/tests/testsuite")
                (("root <")         "nobody <")
                (("spool/root")     "spool/nobody")
                (("root@localhost") "nobody@localhost"))
@@ -217,11 +221,11 @@
 
        #:parallel-tests? #f))
     (native-inputs
-     `(("perl" ,perl)))                           ;for 'gylwrap'
-    (inputs
-     `(("dejagnu" ,dejagnu)
-       ("m4" ,m4)
+     `(("perl" ,perl)                           ;for 'gylwrap'
        ("texinfo" ,texinfo)
+       ("dejagnu" ,dejagnu)))
+    (inputs
+     `(("m4" ,m4)
        ("guile" ,guile-2.2)
        ("gsasl" ,gsasl)
        ("gnutls" ,gnutls)
@@ -521,7 +525,7 @@ It adds a large amount of new and improved features to mutt.")
 (define-public gmime
   (package
     (name "gmime")
-    (version "3.2.6")
+    (version "3.2.7")
     (source (origin
               (method url-fetch)
               (uri (string-append "mirror://gnome/sources/gmime/"
@@ -529,7 +533,7 @@ It adds a large amount of new and improved features to mutt.")
                                   "/gmime-" version ".tar.xz"))
               (sha256
                (base32
-                "05s7qjrxbj010q016pmdqdq73gz8vl4hv29kwaign0j8gi61kzxb"))))
+                "0i3xfc84qn1z99i70q68kbnp9rmgqrnprqb418ba52s6g9j9dsia"))))
     (build-system gnu-build-system)
     (native-inputs
      `(("pkg-config" ,pkg-config)
@@ -1072,6 +1076,38 @@ and search library.")
 (define-public python2-notmuch
   (package-with-python2 python-notmuch))
 
+(define-public muchsync
+  (package
+    (name "muchsync")
+    (version "5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "http://www.muchsync.org/src/"
+                           "muchsync-" version ".tar.gz"))
+       (sha256
+        (base32 "1k2m44pj5i6vfhp9icdqs42chsp208llanc666p3d9nww8ngq2lb"))))
+    (build-system gnu-build-system)
+    (native-inputs
+     `(("ghc-pandoc" ,ghc-pandoc)
+       ("pkg-config" ,pkg-config)))
+    (inputs
+     `(("libcrypto" ,openssl)
+       ("notmuch" ,notmuch)
+       ("sqlite" ,sqlite)
+       ("xapian" ,xapian)))
+    (home-page "http://www.muchsync.org/")
+    (synopsis "Synchronize notmuch mail across machines")
+    (description
+     "Muchsync brings Notmuch to all of your computers by synchronizing your
+mail messages and Notmuch tags across machines.  The protocol is heavily
+pipelined to work efficiently over high-latency networks such as mobile
+broadband.  Muchsync supports arbitrary pairwise synchronization among
+replicas.  A version-vector-based algorithm allows it to exchange only the
+minimum information necessary to bring replicas up to date regardless of which
+pairs have previously synchronized.")
+    (license gpl2+)))
+
 (define-public getmail
   (package
     (name "getmail")
@@ -1262,6 +1298,10 @@ which can add many functionalities to the base client.")
                (install-file (string-append msmtpq "/msmtp-queue") bin)
                (install-file (string-append msmtpq "/README.msmtpq") doc)
                (install-file "scripts/vim/msmtp.vim" vimfiles)
+               ;; Don't rely on netcat being in the PATH to test for a
+               ;; connection, instead try tp ing debian.org.
+               (substitute* (string-append bin "/msmtpq")
+                 (("EMAIL_CONN_TEST=n") "EMAIL_CONN_TEST=p"))
                #t))))))
     (synopsis
      "Simple and easy to use SMTP client with decent sendmail compatibility")
@@ -2963,8 +3003,8 @@ replacement for the @code{urlview} program.")
     (license gpl2+)))
 
 (define-public mumi
-  (let ((commit "6653e2d525b945fcd671dbfbf7b42cc588a1cf4b")
-        (revision "7"))
+  (let ((commit "0e9af8d11246eb08152a9bcbc3d04703963b756c")
+        (revision "11"))
     (package
       (name "mumi")
       (version (git-version "0.0.0" revision commit))
@@ -2976,7 +3016,7 @@ replacement for the @code{urlview} program.")
                 (file-name (git-file-name name version))
                 (sha256
                  (base32
-                  "0h1q61yl01hm7wygv1bv47ncg7l7gcw7aq8ny61g3hr1acsqysjf"))))
+                  "0q5x33gc8gi8w7cjphdmhdyfa62b89mcbmj068yd5jxqx8sn4hlw"))))
       (build-system gnu-build-system)
       (arguments
        `(#:modules ((guix build gnu-build-system)

@@ -65,6 +65,7 @@
   #:use-module (guix git-download)
   #:use-module (guix svn-download)
   #:use-module (guix build-system cmake)
+  #:use-module (guix build-system copy)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix build-system meson)
@@ -1539,7 +1540,7 @@ projects while introducing many more.")
 (define-public mpv-mpris
   (package
     (name "mpv-mpris")
-    (version "0.2")
+    (version "0.4")
     (source
       (origin
         (method git-fetch)
@@ -1549,19 +1550,17 @@ projects while introducing many more.")
         (file-name (git-file-name name version))
         (sha256
          (base32
-          "06hq3j1jjlaaz9ss5l7illxz8vm5bng86jl24kawglwkqayhdnjx"))))
-    (build-system gnu-build-system)
+          "1fr3jvja8s2gdpx8qyk9r17977flms3qpm8zci62nd9r5wjdvr5i"))))
+    (build-system copy-build-system)
     (arguments
-     '(#:tests? #f ; no tests
-       #:make-flags '("CC=gcc")
+     '(#:install-plan
+       '(("mpris.so" "lib/"))
        #:phases
        (modify-phases %standard-phases
-         (delete 'configure) ; no configure script
-         (replace 'install
-           (lambda* (#:key outputs #:allow-other-keys)
-             (let ((out (assoc-ref outputs "out")))
-               (install-file "mpris.so" (string-append out "/lib")))
-             #t)))))
+         (add-before 'install 'build
+           (lambda _
+             (setenv "CC" (which "gcc"))
+             (invoke "make"))))))
     (native-inputs
      `(("pkg-config" ,pkg-config)))
     (inputs
@@ -1641,7 +1640,7 @@ To load this plugin, specify the following option when starting mpv:
 (define-public youtube-dl
   (package
     (name "youtube-dl")
-    (version "2020.03.08")
+    (version "2020.03.24")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://github.com/ytdl-org/youtube-dl/"
@@ -1649,7 +1648,7 @@ To load this plugin, specify the following option when starting mpv:
                                   version ".tar.gz"))
               (sha256
                (base32
-                "1xbka14wnalcqkhibfcqw8f5bw1m9b1f44719yifv1jk0614q4bn"))))
+                "05l4asakakxn53wrvxn6c03fd80zdizdbj6r2cj8c1ja3sj9i8s5"))))
     (build-system python-build-system)
     (arguments
      ;; The problem here is that the directory for the man page and completion
@@ -1861,6 +1860,8 @@ audio, images) from the Web.  It can use either mpv or vlc for playback.")
      `(#:modules ((guix build perl-build-system)
                   (guix build utils)
                   (srfi srfi-26))
+       ;; gtk-2/3 variants are both installed by default but the gtk3 variant
+       ;; is broken without perl-gtk3.
        #:module-build-flags '("--gtk2")
        #:phases
        (modify-phases %standard-phases
@@ -2210,7 +2211,7 @@ capabilities.")
 (define-public vapoursynth
   (package
     (name "vapoursynth")
-    (version "48")
+    (version "49")
     (source (origin
               (method git-fetch)
               (uri (git-reference
@@ -2219,7 +2220,7 @@ capabilities.")
               (file-name (git-file-name name version))
               (sha256
                (base32
-                "1i6163bidlp0p9zcnxpsphr44ayfzd51fig4ri7vbrbl9lw9jaih"))))
+                "1d298mlb24nlc2x7pixfbkd0qbpv4c706c32idsgpi96z1spkhvl"))))
     (build-system gnu-build-system)
     (native-inputs
      `(("autoconf" ,autoconf)
@@ -2309,9 +2310,6 @@ and custom quantization matrices.")
     (description "Streamlink is command-line utility that extracts streams
 from sites like Twitch.tv and pipes them into a video player of choice.")
     (license license:bsd-2)))
-
-(define-public livestreamer
-  (deprecated-package "livestreamer" streamlink))
 
 (define-public twitchy
   (let ((commit "9beb36d80b16662414129693e74fa3a2fd97554e")) ; 3.4 has no tag
@@ -3658,7 +3656,7 @@ API.  It includes bindings for Python, Ruby, and other languages.")
 (define-public openshot
   (package
     (name "openshot")
-    (version "2.4.4")
+    (version "2.5.1")
     (source (origin
               (method git-fetch)
               (uri (git-reference
@@ -3667,10 +3665,11 @@ API.  It includes bindings for Python, Ruby, and other languages.")
               (file-name (git-file-name name version))
               (sha256
                (base32
-                "0mg63v36h7l8kv2sgf6x8c1n3ygddkqqwlciz7ccxpbm4x1idqba"))
+                "0qc5i0ay6j2wab1whl41sjb71cj02pg6y79drf7asrprq8b2rmfq"))
        (modules '((guix build utils)))
        (snippet
         '(begin
+           ;; TODO: Unbundle jquery and others from src/timeline/media
            (delete-file-recursively "src/images/fonts") #t))))
     (build-system python-build-system)
     (inputs
@@ -3683,14 +3682,17 @@ API.  It includes bindings for Python, Ruby, and other languages.")
        ("python-requests" ,python-requests)
        ("qtsvg" ,qtsvg)))
     (arguments
-     `(#:tests? #f                      ;no tests
-       #:modules ((guix build python-build-system)
+     `(#:modules ((guix build python-build-system)
                   (guix build qt-utils)
                   (guix build utils))
        #:imported-modules (,@%python-build-system-modules
                             (guix build qt-utils))
        #:phases (modify-phases %standard-phases
                   (delete 'build)       ;install phase does all the work
+                  (replace 'check
+                    (lambda _
+                      (setenv "QT_QPA_PLATFORM" "offscreen")
+                      (invoke "python" "src/tests/query_tests.py")))
                   (add-after 'unpack 'patch-font-location
                     (lambda* (#:key inputs #:allow-other-keys)
                       (let ((font (assoc-ref inputs "font-ubuntu")))
@@ -3709,7 +3711,7 @@ API.  It includes bindings for Python, Ruby, and other languages.")
                       (let ((out (assoc-ref outputs "out")))
                         (wrap-qt-program out "openshot-qt"))
                       #t)))))
-    (home-page "https://openshot.org")
+    (home-page "https://www.openshot.org/")
     (synopsis "Video editor")
     (description "OpenShot takes your videos, photos, and music files and
 helps you create the film you have always dreamed of.  Easily add sub-titles,

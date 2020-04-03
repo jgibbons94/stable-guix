@@ -1,5 +1,5 @@
 ;;; GNU Guix --- Functional package management for GNU
-;;; Copyright © 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2014, 2015, 2017, 2018 Mark H Weaver <mhw@netris.org>
 ;;; Copyright © 2015 Eric Bavier <bavier@member.fsf.org>
 ;;; Copyright © 2016 Alex Kost <alezost@gmail.com>
@@ -444,9 +444,9 @@ derivations."
   (let ((distro (resolve-interface '(gnu packages commencement))))
     (module-ref distro 'guile-final)))
 
-(define (guile-2.0)
-  "Return Guile 2.0."
-  ;; FIXME: This is used as a workaround for <https://bugs.gnu.org/28211> when
+(define (guile-for-grafts)
+  "Return the Guile package used to build grafting derivations."
+  ;; Guile 2.2 would not work due to <https://bugs.gnu.org/28211> when
   ;; grafting packages.
   (let ((distro (resolve-interface '(gnu packages guile))))
     (module-ref distro 'guile-2.0)))
@@ -1029,39 +1029,39 @@ information in exceptions."
                        #:key (graft? (%graft?)))
   "Compile PACKAGE into a bag for SYSTEM, possibly cross-compiled to TARGET,
 and return it."
-  (cached (=> %bag-cache)
-          package (list system target graft?)
-          ;; Bind %CURRENT-SYSTEM and %CURRENT-TARGET-SYSTEM so that thunked
-          ;; field values can refer to it.
-          (parameterize ((%current-system system)
-                         (%current-target-system target))
-            (match (if graft?
-                       (or (package-replacement package) package)
-                       package)
-              ((and self
-                    ($ <package> name version source build-system
-                                 args inputs propagated-inputs native-inputs
-                                 outputs))
-               ;; Even though we prefer to use "@" to separate the package
-               ;; name from the package version in various user-facing parts
-               ;; of Guix, checkStoreName (in nix/libstore/store-api.cc)
-               ;; prohibits the use of "@", so use "-" instead.
-               (or (make-bag build-system (string-append name "-" version)
-                             #:system system
-                             #:target target
-                             #:source source
-                             #:inputs (append (inputs self)
-                                              (propagated-inputs self))
-                             #:outputs outputs
-                             #:native-inputs (native-inputs self)
-                             #:arguments (args self))
-                   (raise (if target
-                              (condition
-                               (&package-cross-build-system-error
-                                (package package)))
-                              (condition
-                               (&package-error
-                                (package package)))))))))))
+  (let ((package (or (and graft? (package-replacement package))
+                     package)))
+    (cached (=> %bag-cache)
+            package (list system target)
+            ;; Bind %CURRENT-SYSTEM and %CURRENT-TARGET-SYSTEM so that thunked
+            ;; field values can refer to it.
+            (parameterize ((%current-system system)
+                           (%current-target-system target))
+              (match package
+                ((and self
+                      ($ <package> name version source build-system
+                                   args inputs propagated-inputs native-inputs
+                                   outputs))
+                 ;; Even though we prefer to use "@" to separate the package
+                 ;; name from the package version in various user-facing parts
+                 ;; of Guix, checkStoreName (in nix/libstore/store-api.cc)
+                 ;; prohibits the use of "@", so use "-" instead.
+                 (or (make-bag build-system (string-append name "-" version)
+                               #:system system
+                               #:target target
+                               #:source source
+                               #:inputs (append (inputs self)
+                                                (propagated-inputs self))
+                               #:outputs outputs
+                               #:native-inputs (native-inputs self)
+                               #:arguments (args self))
+                     (raise (if target
+                                (condition
+                                 (&package-cross-build-system-error
+                                  (package package)))
+                                (condition
+                                 (&package-error
+                                  (package package))))))))))))
 
 (define %graft-cache
   ;; 'eq?' cache mapping package objects to a graft corresponding to their
@@ -1269,7 +1269,7 @@ This is an internal procedure."
                   (()
                    drv)
                   (grafts
-                   (let ((guile (package-derivation store (guile-2.0)
+                   (let ((guile (package-derivation store (guile-for-grafts)
                                                     system #:graft? #f)))
                      ;; TODO: As an optimization, we can simply graft the tip
                      ;; of the derivation graph since 'graft-derivation'
@@ -1295,7 +1295,7 @@ system identifying string)."
                    (graft-derivation store drv grafts
                                      #:system system
                                      #:guile
-                                     (package-derivation store (guile-2.0)
+                                     (package-derivation store (guile-for-grafts)
                                                          system #:graft? #f))))
                 drv))))
 
