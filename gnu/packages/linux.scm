@@ -192,6 +192,12 @@ defconfig.  Return the appropriate make target if applicable, otherwise return
                               "deblob-check"))
           (sha256 deblob-check-hash))))
 
+(define deblob-scripts-5.6
+  (linux-libre-deblob-scripts
+   "5.6"
+   (base32 "09hxrr4xzllq5lmipfb6if30318lksrk9py1axc36m9ynql4w0rc")
+   (base32 "09qz5d31g5zwicsnncjnjij193hk0g6kg0ss9jyzh6lp3wilcm71")))
+
 (define deblob-scripts-5.4
   (linux-libre-deblob-scripts
    "5.4.28"
@@ -362,42 +368,51 @@ corresponding UPSTREAM-SOURCE (an origin), using the given DEBLOB-SCRIPTS."
                         "linux-" version ".tar.xz"))
     (sha256 hash)))
 
-(define-public linux-libre-5.4-version "5.4.28")
+
+(define-public linux-libre-5.6-version "5.6.2")
+(define-public linux-libre-5.6-pristine-source
+  (let ((version linux-libre-5.6-version)
+        (hash (base32 "1fdmcx5fk9wq9yx6vvnw76nvdysbvm83cik1dj1d67lw6bc92k9d")))
+   (make-linux-libre-source version
+                            (%upstream-linux-source version hash)
+                            deblob-scripts-5.6)))
+
+(define-public linux-libre-5.4-version "5.4.30")
 (define-public linux-libre-5.4-pristine-source
   (let ((version linux-libre-5.4-version)
-        (hash (base32 "197p7rjmbs229ncj1y8s80f7n4bm8g9w0jrv1109m3rl8q9wqqy8")))
+        (hash (base32 "1vwx6j87pkfyq68chng1hy0c85hpc2byabiv1pcikrmw07vpip8i")))
    (make-linux-libre-source version
                             (%upstream-linux-source version hash)
                             deblob-scripts-5.4)))
 
-(define-public linux-libre-4.19-version "4.19.113")
+(define-public linux-libre-4.19-version "4.19.114")
 (define-public linux-libre-4.19-pristine-source
   (let ((version linux-libre-4.19-version)
-        (hash (base32 "1rf0jz7r1f4rb4k0g3glssfa1hm2ka6vlbwjlkmsx1bybxnmg85m")))
+        (hash (base32 "03hz6vg5bg728ilbm4z997pf52cgxzsxb03vz5cs55gwdbfa0h0y")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.19)))
 
-(define-public linux-libre-4.14-version "4.14.174")
+(define-public linux-libre-4.14-version "4.14.175")
 (define-public linux-libre-4.14-pristine-source
   (let ((version linux-libre-4.14-version)
-        (hash (base32 "12ai2lc2ny38s93d0m5ngrv030vwv1h2hhzp0fs6fhjxasikq8jc")))
+        (hash (base32 "0b12w0d21sk261jr4p1pm32v0r20a5c2j1p5hasdqw80sb2hli6b")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.14)))
 
-(define-public linux-libre-4.9-version "4.9.217")
+(define-public linux-libre-4.9-version "4.9.218")
 (define-public linux-libre-4.9-pristine-source
   (let ((version linux-libre-4.9-version)
-        (hash (base32 "06b8av9f9pk2yp95nzv4322k0d5wsg40sxd9kfim1xzb093abckg")))
+        (hash (base32 "1ka98c8sbfipzll6ss9fcsn26lh4cy60372yfw27pif4brhnwfnz")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.9)))
 
-(define-public linux-libre-4.4-version "4.4.217")
+(define-public linux-libre-4.4-version "4.4.218")
 (define-public linux-libre-4.4-pristine-source
   (let ((version linux-libre-4.4-version)
-        (hash (base32 "0vsjchywznmjn01flgvm9vsja5zqni319rfwgy997afcbz0c9spx")))
+        (hash (base32 "0qzhcy8i111jbpnkpzq7hqf9nkwq4s7smi820hfvnmd2ky7cns7a")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.4)))
@@ -429,6 +444,15 @@ corresponding UPSTREAM-SOURCE (an origin), using the given DEBLOB-SCRIPTS."
     (inherit source)
     (patches (append (origin-patches source)
                      patches))))
+
+(define-public linux-libre-5.6-source
+  (source-with-patches linux-libre-5.6-pristine-source
+                       (list %boot-logo-patch
+                             %linux-libre-arm-export-__sync_icache_dcache-patch
+                             ;; Pinebook Pro patch from linux-next,
+                             ;; can be dropped for linux-libre 5.7
+                             (search-patch
+                              "linux-libre-support-for-Pinebook-Pro.patch"))))
 
 (define-public linux-libre-5.4-source
   (source-with-patches linux-libre-5.4-pristine-source
@@ -528,6 +552,10 @@ corresponding UPSTREAM-SOURCE (an origin), using the given DEBLOB-SCRIPTS."
     (synopsis "GNU Linux-Libre kernel headers")
     (description "Headers of the Linux-Libre kernel.")
     (license license:gpl2)))
+
+(define-public linux-libre-headers-5.6
+  (make-linux-libre-headers* linux-libre-5.6-version
+                             linux-libre-5.6-source))
 
 (define-public linux-libre-headers-5.4
   (make-linux-libre-headers* linux-libre-5.4-version
@@ -793,6 +821,12 @@ It has been modified to remove all non-free binary blobs.")
 ;;; Generic kernel packages.
 ;;;
 
+(define-public linux-libre-5.6
+  (make-linux-libre* linux-libre-5.6-version
+                     linux-libre-5.6-source
+		     '("x86_64-linux" "i686-linux" "armhf-linux" "aarch64-linux" "riscv64-linux")
+                     #:configuration-file kernel-config))
+
 (define-public linux-libre-5.4
   (make-linux-libre* linux-libre-5.4-version
                      linux-libre-5.4-source
@@ -846,6 +880,13 @@ It has been modified to remove all non-free binary blobs.")
                      #:defconfig "multi_v7_defconfig"
                      #:extra-version "arm-generic"))
 
+(define-public linux-libre-arm-generic-5.6
+  (make-linux-libre* linux-libre-5.6-version
+                     linux-libre-5.6-source
+                     '("armhf-linux")
+                     #:defconfig "multi_v7_defconfig"
+                     #:extra-version "arm-generic"))
+
 (define-public linux-libre-arm-veyron
   (deprecated-package "linux-libre-arm-veyron" linux-libre-arm-generic))
 
@@ -887,6 +928,13 @@ It has been modified to remove all non-free binary blobs.")
 (define-public linux-libre-arm64-generic
   (make-linux-libre* linux-libre-version
                      linux-libre-source
+                     '("aarch64-linux")
+                     #:defconfig "defconfig"
+                     #:extra-version "arm64-generic"))
+
+(define-public linux-libre-arm64-generic-5.6
+  (make-linux-libre* linux-libre-5.6-version
+                     linux-libre-5.6-source
                      '("aarch64-linux")
                      #:defconfig "defconfig"
                      #:extra-version "arm64-generic"))
@@ -6571,10 +6619,10 @@ of Linux application development.")
                (("/usr/bin/dbus-daemon") (which "dbus-daemon")))
              #t)))))
     (inputs
-     `(("dbus" ,dbus)
-       ("libtool" ,libtool)))
+     `(("dbus" ,dbus)))
     (native-inputs
      `(("autoconf" ,autoconf)
+       ("libtool" ,libtool)
        ("pkgconfig" ,pkg-config)
        ("automake" ,automake)))
     (home-page "https://01.org/ell")

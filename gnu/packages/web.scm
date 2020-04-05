@@ -6115,12 +6115,12 @@ file links.")
      `(#:configure-flags (list "--with-ssl=openssl")
        #:tests? #f)) ;No tests included
     (native-inputs
-     `(("gettext" ,gnu-gettext)
+     `(("gettext" ,gettext-minimal)
        ("pkg-config" ,pkg-config)
        ("intltool" ,intltool)))
     (inputs
      `(("expat" ,expat)
-       ("openssl" ,openssl)))
+       ("openssl" ,openssl-1.0)))
     (home-page "http://www.webdav.org/cadaver/")
     (synopsis "Command-line WebDAV client")
     (description

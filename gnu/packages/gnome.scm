@@ -49,6 +49,7 @@
 ;;; Copyright © 2020 Pierre Neidhardt <mail@ambrevar.xyz>
 ;;; Copyright © 2020 raingloom <raingloom@riseup.net>
 ;;; Copyright © 2020 Nicolas Goaziou <mail@nicolasgoaziou.fr>
+;;; Copyright © 2020 Naga Malleswari <nagamalli@riseup.net>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -334,7 +335,7 @@ in the GNOME desktop.")
 (define-public gnome-online-miners
   (package
     (name "gnome-online-miners")
-    (version "3.30.0")
+    (version "3.34.0")
     (source (origin
               (method url-fetch)
               (uri (string-append "mirror://gnome/sources/" name "/"
@@ -342,7 +343,7 @@ in the GNOME desktop.")
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "0pjamwwzn5wqgihyss357dyl2q70r0bngnqmwsqawchx5f9aja9c"))))
+                "1n2jz9i8a42zwxx5h8j2gdy6q1vyydh4vl00r0al7w8jzdh24p44"))))
     (build-system glib-or-gtk-build-system)
     (native-inputs
      `(("gettext" ,gettext-minimal)
@@ -5077,7 +5078,7 @@ supports image conversion, rotation, and slideshows.")
     (synopsis "Extensions for the Eye of GNOME image viewer")
     (native-inputs
      `(("pkg-config" ,pkg-config)
-       ("gettext" ,gnu-gettext)))
+       ("gettext" ,gettext-minimal)))
     (inputs
      `(("eog" ,eog)
        ("glib" ,glib)
@@ -6093,7 +6094,7 @@ window manager.")
 (define-public gnome-online-accounts
   (package
     (name "gnome-online-accounts")
-    (version "3.32.1")
+    (version "3.36.0")
     (source (origin
               (method url-fetch)
               (uri (string-append "mirror://gnome/sources/" name "/"
@@ -6101,7 +6102,7 @@ window manager.")
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "08g9kdj8fzcgp76z2zsj9m7wfjks9z6xfrfrbfmcr69k40mapfx8"))))
+                "0bigfi225g1prnxpb9lcc1i7mdcrkplwb05vilc43jik12cn53qw"))))
     (outputs '("out" "lib"))
     (build-system glib-or-gtk-build-system)
     (arguments
@@ -7727,6 +7728,17 @@ associations for GNOME.")
       ("gjs" ,gjs)
       ("gnome-desktop" ,gnome-desktop)
       ("libgweather" ,libgweather)))
+   (arguments
+    `(#:phases
+      (modify-phases %standard-phases
+        (add-after 'install 'fix-desktop-file
+          ;; FIXME: "gapplication launch org.gnome.Weather" fails for some reason.
+          ;; See https://issues.guix.gnu.org/issue/39324.
+          (lambda* (#:key outputs #:allow-other-keys)
+            (let* ((out (assoc-ref outputs "out"))
+                   (applications (string-append out "/share/applications")))
+              (substitute* (string-append applications "/org.gnome.Weather.desktop")
+                (("Exec=.*") "Exec=gnome-weather\n"))))))))
    (synopsis "Weather monitoring for GNOME desktop")
    (description "GNOME Weather is a small application that allows you to
 monitor the current weather conditions for your city, or anywhere in the
@@ -9174,7 +9186,7 @@ configurable file renaming. ")
               ("libxscrnsaver" ,libxscrnsaver)))
     (native-inputs `(("boost" ,boost)
                      ("pkg-config" ,pkg-config)
-                     ("gettext" ,gnu-gettext)
+                     ("gettext" ,gettext-minimal)
                      ("autoconf" ,autoconf)
                      ("autoconf-archive" , autoconf-archive)
                      ("automake" ,automake)
@@ -9871,7 +9883,7 @@ join_paths\\('build-aux', 'post_install.py'\\)\\)")
      `(("appstream-glib" ,appstream-glib)
        ("cmake-minimal" ,cmake-minimal)
        ("desktop-file-utils" ,desktop-file-utils)
-       ("gettext" ,gnu-gettext)
+       ("gettext" ,gettext-minimal)
        ("glib:bin" ,glib "bin")
        ("gobject-introspection" ,gobject-introspection)
        ("itstool" ,itstool)
@@ -9957,3 +9969,33 @@ to.")
 environment.  Its main purpose is the manual transcription of spoken
 audio files.")
       (license license:gpl3+))))
+
+(define-public jsonrpc-glib
+  (package
+    (name "jsonrpc-glib")
+    (version "3.34.0")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append "mirror://gnome/sources/" name "/"
+                                  (version-major+minor version) "/"
+                                   name "-" version ".tar.xz"))
+              (sha256
+               (base32
+                "0j05x4xv2cp3cbmp30m68z8g4rdw7b030ip4wszyfj9ya15v5kni"))))
+    (build-system meson-build-system)
+    (inputs
+     `(("json-glib" ,json-glib)
+       ("glib" ,glib)))
+    (native-inputs
+     `(("pkg-config" ,pkg-config)
+       ("glib:bin" ,glib "bin") ; for glib-genmarshal, etc.
+       ("gobject-introspection" ,gobject-introspection)
+       ("vala" ,vala)))
+    (home-page "https://gitlab.gnome.org/GNOME/jsonrpc-glib")
+    (synopsis "JSON-RPC library for GLib")
+    (description "Jsonrpc-GLib is a library to communicate with JSON-RPC based
+peers in either a synchronous or asynchronous fashion.  It also allows
+communicating using the GVariant serialization format instead of JSON when
+both peers support it.  You might want that when communicating on a single
+host to avoid parser overhead and memory-allocator fragmentation.")
+    (license license:lgpl2.1+)))

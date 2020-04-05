@@ -1108,6 +1108,207 @@ helpers.")
 (define-public python2-humanfriendly
   (package-with-python2 python-humanfriendly))
 
+(define-public python-textparser
+  (package
+    (name "python-textparser")
+    (version "0.23.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "textparser" version))
+       (sha256
+        (base32
+         "0w5lyhrsvzs5a9q1l3sjgxgljrvd3ybf796w93kc39wayzvd02gh"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/eerimoq/textparser")
+    (synopsis "Fast text parser for Python")
+    (description "This library provides a text parser written in the Python
+language.  It aims to be fast.")
+    (license license:expat)))
+
+(define-public python-aenum
+  (package
+    (name "python-aenum")
+    (version "2.2.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "aenum" version))
+       (sha256
+        (base32
+         "1s3008rklv4n1kvmq6xdbdfyrpl0gf1rhqasmd27s5kwyjmlqcx4"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (replace 'check
+                    (lambda _
+                      (format #t "current working dir ~s~%" (getcwd))
+                      (setenv "PYTHONPATH"
+                              (string-append ".:" (getenv "PYTHONPATH")))
+                      ;; We must run the test suite module directly, as it
+                      ;; fails to define the 'tempdir' variable in scope for
+                      ;; the tests otherwise
+                      ;; (see:https://bitbucket.org/stoneleaf/aenum/\
+                      ;; issues/32/running-tests-with-python-setuppy-test).
+                      (invoke "python3" "aenum/test.py")
+                      ;; This one fails with "NameError: name
+                      ;; 'test_pickle_dump_load' is not defined" (see:
+                      ;; https://bitbucket.org/stoneleaf/aenum/issues/33
+                      ;; /error-running-the-test_v3py-test-suite).
+                      ;; (invoke "python3" "aenum/test_v3.py")
+                      #t)))))
+    (home-page "https://bitbucket.org/stoneleaf/aenum")
+    (synopsis "Advanced enumerations, namedtuples and constants for Python")
+    (description "The aenum library includes an @code{Enum} base class, a
+metaclass-based @code{NamedTuple} implementation and a @code{NamedConstant}
+class.")
+    (license license:bsd-3)))
+
+(define-public python-can
+  (package
+    (name "python-can")
+    (version "3.3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "python-can" version))
+       (sha256
+        (base32
+         "0bkbxi45sckzir6s0j3h01pkfn4vkz3ymih2zjp7zw77wz0vbvsz"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'fix-broken-tests
+                    ;; The tests try to run two scripts it expects should be
+                    ;; in PATH, but they aren't at this time (see:
+                    ;; https://github.com/hardbyte/python-can/issues/805).
+                    (lambda _
+                      (substitute* "test/test_scripts.py"
+                        (("\"can_logger\\.py --help\"") "")
+                        (("\"can_player\\.py --help\"") ""))
+                      #t)))))
+    (propagated-inputs
+     `(("python-aenum" ,python-aenum)
+       ("python-wrapt" ,python-wrapt)))
+    (native-inputs
+     `(("python-codecov" ,python-codecov)
+       ("python-future" ,python-future)
+       ("python-hypothesis" ,python-hypothesis)
+       ("python-mock" ,python-mock)
+       ("python-pyserial" ,python-pyserial)
+       ("python-pytest" ,python-pytest)
+       ("python-pytest-cov" ,python-pytest-cov)
+       ("python-pytest-runner" ,python-pytest-runner)
+       ("python-pytest-timeout" ,python-pytest-timeout)))
+    (home-page "https://github.com/hardbyte/python-can")
+    (synopsis "Controller Area Network (CAN) interface module for Python")
+    (description "This package defines the @code{can} module, which provides
+controller area network (CAN) support for Python developers; providing common
+abstractions to different hardware devices, and a suite of utilities for
+sending and receiving messages on a CAN bus.")
+    (license license:gpl3+)))
+
+(define-public python-diskcache
+  (package
+    (name "python-diskcache")
+    (version "4.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "diskcache" version))
+       (sha256
+        (base32
+         "1q2wz5sj16zgyy1zpq516qgbnfwsavk1pl2qks0f4r62z5cmmvmw"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:tests? #f))                   ;test suite not included in the release
+    (home-page "http://www.grantjenks.com/docs/diskcache/")
+    (synopsis "Disk and file backed cache library")
+    (description "DiskCache is a disk and file backed persistent cache.")
+    (license license:asl2.0)))
+
+(define-public python-bitstruct
+  (package
+    (name "python-bitstruct")
+    (version "8.9.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "bitstruct" version))
+       (sha256
+        (base32
+         "1fpc1qh1vss05ap29xvhjp200fm0q4pvgcjl0qpryh7ay6xgr5vx"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/eerimoq/bitstruct")
+    (synopsis "Python values to and C bit field structs converter")
+    (description "This module performs conversions between Python values and C
+bit field structs represented as Python byte strings.  It is intended to have
+a similar interface as the @code{struct} module from Python, but working on
+bits instead of primitive data types like @code{char}, @code{int}, etc.")
+    (license license:expat)))
+
+(define-public python-cantools
+  (package
+    (name "python-cantools")
+    (version "33.1.1")
+    (source
+     (origin
+       ;; We take the sources from the Git repository as the documentation is
+       ;; not included with the PyPI archive.
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/eerimoq/cantools.git")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32
+         "1aad137yd8b4jkfvlv812qsxmxcgra7g1p4wbxfsjy1cbf8fbq9q"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-after 'build 'build-doc
+           (lambda _
+             ;; See: https://github.com/eerimoq/cantools/issues/190.
+             (substitute* "README.rst"
+               (("https://github.com/eerimoq/cantools/raw/master\
+/docs/monitor.png")
+                "monitor.png"))
+             (with-directory-excursion "docs"
+               (invoke "make" "man" "info"))))
+         (add-after 'install 'install-doc
+           (lambda* (#:key outputs #:allow-other-keys)
+             (let* ((out (assoc-ref outputs "out"))
+                    (info (string-append out "/share/info"))
+                    (man1 (string-append out "/share/man/man1")))
+               (format #t "CWD: ~s~%" (getcwd))
+               (install-file "docs/_build/texinfo/cantools.info" info)
+               (install-file "docs/_build/man/cantools.1" man1)
+               #t))))))
+    (native-inputs
+     `(("sphinx" ,python-sphinx)
+       ("texinfo" ,texinfo)))
+    (propagated-inputs
+     `(("python-bitstruct" ,python-bitstruct)
+       ("python-can" ,python-can)
+       ("python-diskcache" ,python-diskcache)
+       ("python-textparser" ,python-textparser)))
+    (home-page "https://github.com/eerimoq/cantools")
+    (synopsis "Tools for the Controller Area Network (CAN) bus protocol")
+    (description "This package includes Controller Area Network (CAN) related
+tools that can be used to:
+@itemize
+@item parse DBC, KCD, SYM, ARXML 4 and CDD files
+@item encode and decode CAN messages
+@item multiplex simple and extended signals
+@item diagnose DID encoding and decoding
+@item dump the CAN decoder output
+@item test CAN nodes
+@item generate C source code
+@item monitor the CAN bus
+@end itemize")
+    (license license:expat)))
+
 (define-public python-capturer
   (package
     (name "python-capturer")

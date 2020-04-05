@@ -6696,7 +6696,7 @@ GameController.")
              #t)))))
     (native-inputs
      `(("desktop-file-utils" ,desktop-file-utils) ;for desktop-file-validate
-       ("gettext" ,gnu-gettext)
+       ("gettext" ,gettext-minimal)
        ("glib" ,glib "bin")             ;for glib-compile-resources
        ("itstool" ,itstool)
        ("libxml2" ,libxml2)             ;for xmllint
@@ -7201,7 +7201,7 @@ where the player draws runes in real time to effect the desired spell.")
      `(("pkg-config" ,pkg-config)
        ("autoconf" ,autoconf)
        ("automake" ,automake)
-       ("gnu-gettext" ,gnu-gettext)
+       ("gnu-gettext" ,gettext-minimal)
        ("libtool" ,libtool)
        ("which" ,which)))
     (synopsis "2d action platformer game")

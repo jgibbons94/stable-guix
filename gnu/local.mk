@@ -28,6 +28,7 @@
 # Copyright © 2019 Amin Bandali <bandali@gnu.org>
 # Copyright © 2020 Brendan Tildesley <mail@brendan.scot>
 # Copyright © 2020 Vincent Legoll <vincent.legoll@gmail.com>
+# Copyright © 2020 R Veera Kumar <vkor@vkten.in>
 #
 # This file is part of GNU Guix.
 #
@@ -1203,6 +1204,8 @@ dist_patch_DATA =						\
   %D%/packages/patches/metabat-fix-compilation.patch		\
   %D%/packages/patches/mhash-keygen-test-segfault.patch		\
   %D%/packages/patches/mingw-w64-6.0.0-gcc.patch		\
+  %D%/packages/patches/mingw-w64-dlltool-temp-prefix.patch	\
+  %D%/packages/patches/mingw-w64-reproducible-gendef.patch	\
   %D%/packages/patches/minisat-friend-declaration.patch		\
   %D%/packages/patches/minisat-install.patch			\
   %D%/packages/patches/mpc123-initialize-ao.patch		\
@@ -1532,6 +1535,10 @@ dist_patch_DATA =						\
   %D%/packages/patches/xmoto-utf8.patch				\
   %D%/packages/patches/xmoto-remove-glext.patch			\
   %D%/packages/patches/xmoto-reproducible.patch			\
+  %D%/packages/patches/xplanet-1.3.1-cxx11-eof.patch		\
+  %D%/packages/patches/xplanet-1.3.1-libdisplay_DisplayOutput.cpp.patch	\
+  %D%/packages/patches/xplanet-1.3.1-libimage_gif.c.patch	\
+  %D%/packages/patches/xplanet-1.3.1-xpUtil-Add2017LeapSecond.cpp.patch	\
   %D%/packages/patches/xsane-fix-memory-leak.patch		\
   %D%/packages/patches/xsane-fix-pdf-floats.patch		\
   %D%/packages/patches/xsane-fix-snprintf-buffer-length.patch	\

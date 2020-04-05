@@ -1873,6 +1873,29 @@ environment set through Direnv.")
 that the binary uses instead of the actual binary contents.")
     (license license:gpl3+)))
 
+(define-public emacs-form-feed
+  (package
+    (name "emacs-form-feed")
+    (version "0.2.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/wasamasa/form-feed.git")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "171jna631b2iqcimfsik9c66gii8nc0zdb58m077w00rn7rcxbh2"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/wasamasa/form-feed")
+    (synopsis "Display ^L glyphs as horizontal lines")
+    (description
+     "This package provides a minor mode @code{form-feed-mode} to display page
+delimiters which usually appear as ^L glyphs on a single line as horizontal
+lines spanning the entire window.  The minor mode is suitable for inclusion
+into mode hooks and is intended to be used that way.")
+    (license license:gpl3+)))
+
 (define-public emacs-ggtags
   (package
     (name "emacs-ggtags")
@@ -6884,6 +6907,35 @@ functions to assist in reviewing changes on files.")
     (description "pyvenv.el is a minor mode to support using Python virtual
 environments (virtualenv) inside Emacs.")
     (license license:gpl3+)))
+
+(define-public emacs-highlight-indent-guides
+  (let ((version "0.8.5") ; from package metadata
+        (revision "0")
+        (commit "c2c9de4d01edfb89609c91d4d7f1d81312015a2c"))
+    (package
+      (name "emacs-highlight-indent-guides")
+      (version (git-version version revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/DarthFennec/highlight-indent-guides.git")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "10chvqnmdmkx6i9sigqframr85ziyafiz44glwhvhjajfkv42ad2"))))
+      (build-system emacs-build-system)
+      (home-page
+       "https://github.com/DarthFennec/highlight-indent-guides")
+      (synopsis "Minor mode to highlight indentation")
+      (description
+       "This package provides a minor mode to highlight indentation levels via
+font-lock.  Indent widths are dynamically discovered, which means this
+correctly highlights in any mode, regardless of indent width, even in
+languages with non-uniform indentation such as Haskell.  This mode works
+properly around hard tabs and mixed indentation and behaves well in large
+buffers.")
+      (license license:expat))))
 
 (define-public emacs-highlight-indentation
   ;; Last release version is from 2015.
@@ -20664,31 +20716,50 @@ Emacs that integrate with major modes like Org-mode.")
       (home-page "https://github.com/hlissner/emacs-doom-themes")
       (license license:expat))))
 
-(define-public emacs-modus-themes
+(define-public emacs-modus-operandi-theme
   (package
-    (name "emacs-modus-themes")
-    (version "0.6.0")
+    (name "emacs-modus-operandi-theme")
+    (version "0.7.0")
     (source
      (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://gitlab.com/protesilaos/modus-themes.git")
-             (commit version)))
-       (file-name (git-file-name name version))
+       (method url-fetch)
+       (uri (string-append "https://elpa.gnu.org/packages/"
+                           "modus-operandi-theme-" version ".el"))
        (sha256
-        (base32 "15z6qq0b0npp7hscmh04i3mi10bynzdy52fv2b160nji264zvcwa"))))
+        (base32 "17zvcqplbl3rk39k61v43ganzv06j49rlyickanwll5m1a3iibw2"))))
     (build-system emacs-build-system)
     (home-page "https://gitlab.com/protesilaos/modus-themes")
-    (synopsis "Emacs themes designed for colour-contrast accessibility")
+    (synopsis "Accessible light theme (WCAG AAA)")
     (description
-     "This is a set of accessible themes for GNU Emacs.  The contrast ratio
-between foreground and background values should always be >= 7:1, which
-conforms with the WCAG AAA accessibility standard.
-
-The Modus themes project consists of two standalone items, one where dark text
-is cast on a light backdrop (Modus Operandi) and another where light text is
-displayed against a dark background (Modus Vivendi).")
+     "Modus operandi is the light version of the Modus accessible themes for
+GNU Emacs.  The contrast ratio between foreground and background values should
+always be greater than 7:1, which conforms with the WCAG AAA accessibility
+standard.  This is the highest standard of its kind.")
     (license license:gpl3+)))
+
+(define-public emacs-modus-vivendi-theme
+  (package
+    (name "emacs-modus-vivendi-theme")
+    (version "0.7.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://elpa.gnu.org/packages/"
+                           "modus-vivendi-theme-" version ".el"))
+       (sha256
+        (base32 "1w4vrg39dghghkvll3h4kmzykc3zpp6pbychb39gcc13z2b06v8g"))))
+    (build-system emacs-build-system)
+    (home-page "https://gitlab.com/protesilaos/modus-themes")
+    (synopsis "Accessible dark theme (WCAG AAA)")
+    (description
+     "Modus vivendi is the dark version of the Modus accessible themes for GNU
+Emacs.  The contrast ratio between foreground and background values should
+always be greater than 7:1, which conforms with the WCAG AAA accessibility
+standard.  This is the highest standard of its kind.")
+    (license license:gpl3+)))
+
+(define-public emacs-modus-themes
+  (deprecated-package "emacs-modus-themes" emacs-modus-operandi-theme))
 
 (define-public emacs-punpun-theme
   (let ((commit "2f78125609277b2478abdebd8f9d5ee10a823b65")

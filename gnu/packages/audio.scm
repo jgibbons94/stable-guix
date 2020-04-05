@@ -11,7 +11,7 @@
 ;;; Copyright © 2016, 2017, 2018, 2019, 2020 Tobias Geerinckx-Rice <me@tobias.gr>
 ;;; Copyright © 2018, 2020 Oleg Pykhalov <go.wigust@gmail.com>
 ;;; Copyright © 2018 okapi <okapi@firemail.cc>
-;;; Copyright © 2018 Maxim Cournoyer <maxim.cournoyer@gmail.com>
+;;; Copyright © 2018, 2020 Maxim Cournoyer <maxim.cournoyer@gmail.com>
 ;;; Copyright © 2018 Clément Lassieur <clement@lassieur.org>
 ;;; Copyright © 2018 Brett Gilio <brettg@gnu.org>
 ;;; Copyright © 2018, 2019 Marius Bakke <mbakke@fastmail.com>
@@ -3356,14 +3356,14 @@ code, used in @code{libtoxcore}.")
     (build-system gnu-build-system)
     (arguments
      `(#:test-target "tst"
+       #:make-flags '("INSTALL_ROOT=%output"
+                      "CCFLAGS=-fPIC \
+-c -O2 -DNeedFunctionPrototypes=1 -Wall -Wno-comment") ;default options
        #:phases
        (modify-phases %standard-phases
          (add-before 'install 'pre-install
            (lambda _
              (let ((out (assoc-ref %outputs "out")))
-               (substitute* "Makefile"
-                 (("INSTALL_ROOT\t=")
-                  (string-append "INSTALL_ROOT\t=\t" out)))
                (mkdir-p (string-append out "/inc"))
                (mkdir-p (string-append out "/man"))
                (mkdir-p (string-append out "/man/man1"))
@@ -3882,7 +3882,7 @@ stream to one or more IceCast and/or ShoutCast servers.")
 (define-public redkite
   (package
     (name "redkite")
-    (version "0.6.2")
+    (version "0.8.0")
     (source
      (origin
        (method git-fetch)
@@ -3892,7 +3892,7 @@ stream to one or more IceCast and/or ShoutCast servers.")
        (file-name (git-file-name name version))
        (sha256
         (base32
-         "1i874izajbdhlfacwwj84qrsxf7g4y6nblzxalrkzaap9sa7d1r6"))))
+         "1747w1kg8y9jbl11xi018d85dm38xk7843pz26sh0k5fdv87a10q"))))
     (build-system cmake-build-system)
     (arguments
      `(#:tests? #f))                    ;no tests included

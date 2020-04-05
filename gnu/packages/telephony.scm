@@ -18,6 +18,7 @@
 ;;; Copyright © 2020 Michael Rohleder <mike@rohleder.de>
 ;;; Copyright © 2020 Raghav Gururajan <raghavgururajan@disroot.org>
 ;;; Copyright © 2020 Maxim Cournoyer <maxim.cournoyer@gmail.com>
+;;; Copyright © 2020 Vincent Legoll <vincent.legoll@gmail.com>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -109,6 +110,7 @@
     (outputs '("out" "doc" "static"))   ;doc contains HTML documentation
     (arguments
      `(#:configure-flags '("--enable-doc=yes" "--enable-tests=yes")
+       #:parallel-build? #f ;non-deterministic build failures may occur otherwise
        #:parallel-tests? #f ;fails removing the same the files twice otherwise
        #:phases (modify-phases %standard-phases
                   (add-after 'unpack 'patch-configure.ac
@@ -968,7 +970,6 @@ This package provides a library common to all Jami clients.")
        ("libnotify" ,libnotify)
        ("clutter" ,clutter)
        ("clutter-gtk" ,clutter-gtk)
-       ("gettext" ,gnu-gettext)
        ("libcanberra" ,libcanberra)
        ("webkitgtk" ,webkitgtk)
        ;; TODO: We must wrap ring-client-gnome to force using the
@@ -985,6 +986,7 @@ This package provides a library common to all Jami clients.")
        ("sqlite" ,sqlite-with-column-metadata)))
     (native-inputs
      `(("pkg-config" ,pkg-config)
+       ("gettext" ,gettext-minimal)
        ("glib:bin" ,glib "bin")
        ("doxygen" ,doxygen)))
     (propagated-inputs
