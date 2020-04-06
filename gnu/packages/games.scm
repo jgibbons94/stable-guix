@@ -1366,7 +1366,8 @@ built-in level editor.")
     (build-system gnu-build-system)
     (arguments
      '(#:make-flags
-       (list (string-append "PREFIX=" (assoc-ref %outputs "out")))
+       (list (string-append "PREFIX=" (assoc-ref %outputs "out"))
+	     "CXXFLAGS=-lpthread")
        #:phases
        (modify-phases %standard-phases
          ;; No configure script.
