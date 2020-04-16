@@ -1236,6 +1236,7 @@ videoformats depend on the configuration flags of ffmpeg.")
        ("libdvdread" ,libdvdread)
        ("libebml" ,libebml)
        ("libgcrypt" ,libgcrypt)
+       ("libgme" ,libgme)
        ("libidn" ,libidn)
        ("libkate" ,libkate)
        ("libmad" ,libmad)
@@ -1288,6 +1289,7 @@ videoformats depend on the configuration flags of ffmpeg.")
     (arguments
      `(#:configure-flags
        `("BUILDCC=gcc"
+	 "--enable-gme"
          ,(string-append "LDFLAGS=-Wl,-rpath -Wl,"
                          (assoc-ref %build-inputs "ffmpeg")
                          "/lib"))       ;needed for the tests
