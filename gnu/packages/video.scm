@@ -963,6 +963,7 @@ operate properly.")
        ("libcaca" ,libcaca)
        ("libcdio-paranoia" ,libcdio-paranoia)
        ("libdrm" ,libdrm)
+       ("libgme" ,libgme)
        ("libtheora" ,libtheora)
        ("libva" ,libva)
        ("libvdpau" ,libvdpau)
@@ -1057,6 +1058,7 @@ operate properly.")
          "--enable-libcdio"
          "--enable-libdav1d"
          "--enable-libfreetype"
+	 "--enable-libgme"
          "--enable-libmp3lame"
          "--enable-libopus"
          "--enable-libpulse"
