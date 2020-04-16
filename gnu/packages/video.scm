@@ -121,6 +121,7 @@
   #:use-module (gnu packages man)
   #:use-module (gnu packages markup)
   #:use-module (gnu packages mp3)
+  #:use-module (gnu packages music)
   #:use-module (gnu packages ncurses)
   #:use-module (gnu packages networking)
   #:use-module (gnu packages ocr)
@@ -945,6 +946,7 @@ operate properly.")
        ("libcaca" ,libcaca)
        ("libcdio-paranoia" ,libcdio-paranoia)
        ("libdrm" ,libdrm)
+       ("libgme" ,libgme)
        ("libtheora" ,libtheora)
        ("libva" ,libva)
        ("libvdpau" ,libvdpau)
@@ -1033,6 +1035,7 @@ operate properly.")
          "--enable-libcdio"
          "--enable-libdav1d"
          "--enable-libfreetype"
+	 "--enable-libgme"
          "--enable-libmp3lame"
          "--enable-libopus"
          "--enable-libpulse"
@@ -1215,7 +1218,6 @@ videoformats depend on the configuration flags of ffmpeg.")
        ("dbus" ,dbus)
        ("eudev" ,eudev)
        ("flac" ,flac)
-       ("fluidsynth" ,fluidsynth)
        ("ffmpeg" ,ffmpeg)
        ("fontconfig" ,fontconfig)
        ("freetype" ,freetype)
