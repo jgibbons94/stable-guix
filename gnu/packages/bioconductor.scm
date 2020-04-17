@@ -1958,14 +1958,14 @@ experiments.")
 (define-public r-genomicinteractions
   (package
     (name "r-genomicinteractions")
-    (version "1.20.2")
+    (version "1.20.3")
     (source
      (origin
        (method url-fetch)
        (uri (bioconductor-uri "GenomicInteractions" version))
        (sha256
         (base32
-         "0mqb899wah5n7bp2lajhwy2zpqqhi18plza3i3m51rfl9n62smph"))))
+         "01ps97cs29qvzy5piq2l2k0yyr56rmg5cycfiqhbbvqpjrfvy60g"))))
     (properties
      `((upstream-name . "GenomicInteractions")))
     (build-system r-build-system)
@@ -2313,6 +2313,8 @@ possible, parallelization is achieved using the BiocParallel framework.")
        ("r-tidyr" ,r-tidyr)
        ("r-tidyselect" ,r-tidyselect)
        ("r-vim" ,r-vim)))
+    (native-inputs
+     `(("r-nbconvertr" ,r-nbconvertr))) ; for vignettes
     (home-page "https://bioconductor.org/packages/destiny/")
     (synopsis "Create and plot diffusion maps")
     (description "This package provides tools to create and plot diffusion
@@ -3332,14 +3334,14 @@ peak definition in combination with known profile characteristics.")
 (define-public r-varianttools
   (package
     (name "r-varianttools")
-    (version "1.28.0")
+    (version "1.28.1")
     (source
      (origin
        (method url-fetch)
        (uri (bioconductor-uri "VariantTools" version))
        (sha256
         (base32
-         "0aafcprsqbn1xl8jqnxfl8r2d0lmzhssqpr26lam2cprh3yk0xiv"))))
+         "1x57shc3slcbnc807ra1nwnjr37sqjh04n2xfwd469m4hkjb0jzh"))))
     (properties `((upstream-name . "VariantTools")))
     (build-system r-build-system)
     (propagated-inputs
@@ -3501,8 +3503,8 @@ phenotype of interest.")
     (synopsis "Fast gene set enrichment analysis")
     (description
      "The package implements an algorithm for fast gene set enrichment
-analysis.  Using the fast algorithm allows to make more permutations and get
-more fine grained p-values, which allows to use accurate stantard approaches
+analysis.  Using the fast algorithm makes more permutations and gets
+more fine grained p-values, which allows using accurate standard approaches
 to multiple hypothesis correction.")
     (license license:expat)))
 
@@ -3529,6 +3531,8 @@ to multiple hypothesis correction.")
        ("r-qvalue" ,r-qvalue)
        ("r-reshape2" ,r-reshape2)
        ("r-s4vectors" ,r-s4vectors)))
+    (native-inputs
+     `(("r-knitr" ,r-knitr)))
     (home-page "https://guangchuangyu.github.io/software/DOSE/")
     (synopsis "Disease ontology semantic and enrichment analysis")
     (description
@@ -3783,14 +3787,14 @@ provides reporting features.")
 (define-public r-a4base
   (package
     (name "r-a4base")
-    (version "1.34.0")
+    (version "1.34.1")
     (source
      (origin
        (method url-fetch)
        (uri (bioconductor-uri "a4Base" version))
        (sha256
         (base32
-         "0dgqyq4dnlcik5qqygnhxlhfr98sh6kmdcj2qllhrwyk0lmsfk01"))))
+         "1a0yk05ikk1hr1vpxynydrb5xb1hj4hdqlh9zd13n83ir89dss83"))))
     (properties `((upstream-name . "a4Base")))
     (build-system r-build-system)
     (propagated-inputs
@@ -3899,6 +3903,8 @@ further downstream analysis on its output.")
      `(("r-biocparallel" ,r-biocparallel)
        ("r-ellipse" ,r-ellipse)
        ("r-ggplot2" ,r-ggplot2)))
+    (native-inputs
+     `(("r-knitr" ,r-knitr)))
     (home-page "https://bioconductor.org/packages/bacon/")
     (synopsis "Controlling bias and inflation in association studies")
     (description
@@ -4032,14 +4038,14 @@ position-specific scores within R and Bioconductor.")
 (define-public r-atacseqqc
   (package
     (name "r-atacseqqc")
-    (version "1.10.3")
+    (version "1.10.4")
     (source
      (origin
        (method url-fetch)
        (uri (bioconductor-uri "ATACseqQC" version))
        (sha256
         (base32
-         "18zf90iksglbs13cwr4jjwsv332a19lf4bpdmy69jz8bpwrklv22"))))
+         "1g07ni134cyl3jd9y19afip39kxddfgpm1jjm0rhrm7jgssp24in"))))
     (properties `((upstream-name . "ATACseqQC")))
     (build-system r-build-system)
     (propagated-inputs
@@ -4271,7 +4277,7 @@ investigation using RNA-seq data.")
     (home-page "https://bioconductor.org/packages/AUCell/")
     (synopsis "Analysis of gene set activity in single-cell RNA-seq data")
     (description
-     "AUCell allows to identify cells with active gene sets (e.g. signatures,
+     "AUCell identifies cells with active gene sets (e.g. signatures,
 gene modules, etc) in single-cell RNA-seq data.  AUCell uses the @dfn{Area
 Under the Curve} (AUC) to calculate whether a critical subset of the input
 gene set is enriched within the expressed genes for each cell.  The
@@ -6426,7 +6432,7 @@ parametric mixture model.  The protein binding sites (clusters) are then
 resolved at high resolution and cluster statistics are estimated using a
 rigorous Bayesian framework.  Post-processing of the results, data export for
 UCSC genome browser visualization and motif search analysis are provided.  In
-addition, the package allows to integrate RNA-Seq data to estimate the False
+addition, the package integrates RNA-Seq data to estimate the False
 Discovery Rate of cluster detection.  Key functions support parallel multicore
 computing.  While wavClusteR was designed for PAR-CLIP data analysis, it can
 be applied to the analysis of other NGS data obtained from experimental
@@ -6733,6 +6739,8 @@ using whole genome sequencing data.")
      `(("r-data-table" ,r-data-table)
        ("r-ggplot2" ,r-ggplot2)
        ("r-metap" ,r-metap)))
+    (native-inputs
+     `(("r-knitr" ,r-knitr)))
     (home-page "https://cran.r-project.org/web/packages/ActivePathways/")
     (synopsis "Multivariate pathway enrichment analysis")
     (description
@@ -7105,6 +7113,8 @@ structures.")
        ("r-rjson" ,r-rjson)
        ("r-rsqlite" ,r-rsqlite)
        ("r-xml" ,r-xml)))
+    (native-inputs
+     `(("r-knitr" ,r-knitr)))
     (home-page "https://github.com/TylerBackman/bioassayR")
     (synopsis "Cross-target analysis of small molecule bioactivity")
     (description

@@ -16,6 +16,7 @@
 ;;; Copyright © 2019 Brian Leung <bkleung89@gmail.com>
 ;;; Copyright © 2019 Brett Gilio <brettg@gnu.org>
 ;;; Copyright © 2020 Björn Höfling <bjoern.hoefling@bjoernhoefling.de>
+;;; Copyright © 2020 Jakub Kądziołka <kuba@kadziolka.net>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -7501,13 +7502,13 @@ checks on R packages that are to be submitted to the Bioconductor repository.")
 (define-public r-s4vectors
   (package
     (name "r-s4vectors")
-    (version "0.24.3")
+    (version "0.24.4")
     (source (origin
               (method url-fetch)
               (uri (bioconductor-uri "S4Vectors" version))
               (sha256
                (base32
-                "01f7dms4kw9ajwqlvh5s47riv748xrrs41na03byhjvn4fbdc44y"))))
+                "1fzs8j2d3wwfzm2fq63ywf68a4dbggyl5l098f148yn4jw7jd3bc"))))
     (properties
      `((upstream-name . "S4Vectors")))
     (build-system r-build-system)
@@ -7943,13 +7944,13 @@ tab-delimited (tabix) files.")
 (define-public r-delayedarray
   (package
     (name "r-delayedarray")
-    (version "0.12.2")
+    (version "0.12.3")
     (source (origin
               (method url-fetch)
               (uri (bioconductor-uri "DelayedArray" version))
               (sha256
                (base32
-                "09lackgix5jpm16k0mz2zkibflfb4wzidbz4q32mlxmklf40037q"))))
+                "02i88ll2d7r83nk0wdj28akvsz3jq19g6ixpaahfy3jy5av4byv6"))))
     (properties
      `((upstream-name . "DelayedArray")))
     (build-system r-build-system)
@@ -7960,6 +7961,8 @@ tab-delimited (tabix) files.")
        ("r-iranges" ,r-iranges)
        ("r-matrix" ,r-matrix)
        ("r-matrixstats" ,r-matrixstats)))
+    (native-inputs
+     `(("r-knitr" ,r-knitr)))
     (home-page "https://bioconductor.org/packages/DelayedArray")
     (synopsis "Delayed operations on array-like objects")
     (description
@@ -8400,7 +8403,7 @@ system.  It is used to analyze experimental crosses for identifying
 genes contributing to variation in quantitative traits (so-called
 quantitative trait loci, QTLs).
 
-Using a hidden Markov model, R/qtl allows to estimate genetic maps, to
+Using a hidden Markov model, R/qtl estimates genetic maps, to
 identify genotyping errors, and to perform single-QTL and two-QTL,
 two-dimensional genome scans.")
   (license license:gpl3)))
@@ -8531,7 +8534,7 @@ of other R packages who wish to make use of HTSlib.")
     (home-page "https://bioconductor.org/packages/bamsignals")
     (synopsis "Extract read count signals from bam files")
     (description
-     "This package allows to efficiently obtain count vectors from indexed bam
+     "This package efficiently obtains count vectors from indexed bam
 files.  It counts the number of nucleotide sequence reads in given genomic
 ranges and it computes reads profiles and coverage profiles.  It also handles
 paired-end data.")
@@ -12767,7 +12770,7 @@ expression report comparing samples in an easily configurable manner.")
 (define-public pigx-chipseq
   (package
     (name "pigx-chipseq")
-    (version "0.0.41")
+    (version "0.0.42")
     (source (origin
               (method url-fetch)
               (uri (string-append "https://github.com/BIMSBbioinfo/pigx_chipseq/"
@@ -12775,7 +12778,7 @@ expression report comparing samples in an easily configurable manner.")
                                   "/pigx_chipseq-" version ".tar.gz"))
               (sha256
                (base32
-                "0akbxdmsjsq5fzbwaap04hqjpsfgv1l6yrc2pwgbya1xgqvcq6vy"))))
+                "0xbvgqpk32a8iczhvac56cacr46rdkqb0allhhpvmj940idf72bi"))))
     (build-system gnu-build-system)
     ;; parts of the tests rely on access to the network
     (arguments '(#:tests? #f))
@@ -13171,7 +13174,7 @@ version does count multisplits.")
                 ((or (string-prefix? "armhf" system)
                      (string-prefix? "aarch64" system))
                  "arm_neon=1")
-                (_ "sse2only=1"))))
+                (else "sse2only=1"))))
        #:phases
        (modify-phases %standard-phases
          (delete 'configure)
@@ -13552,17 +13555,27 @@ allowing the insertion of arbitrary types into the tree.")
 (define-public python-intervaltree
   (package
     (name "python-intervaltree")
-    (version "2.1.0")
+    (version "3.0.2")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "intervaltree" version))
        (sha256
         (base32
-         "02w191m9zxkcjqr1kv2slxvhymwhj3jnsyy3a28b837pi15q19dc"))))
+         "0wz234g6irlm4hivs2qzmnywk0ss06ckagwh15nflkyb3p462kyb"))))
     (build-system python-build-system)
-    ;; FIXME: error when collecting tests
-    (arguments '(#:tests? #f))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         ;; pytest seems to have a check to make sure the user is testing
+         ;; their checked-out code and not an installed, potentially
+         ;; out-of-date copy. This is harmless here, since we just installed
+         ;; the package, so we disable the check to avoid skipping tests
+         ;; entirely.
+         (add-before 'check 'import-mismatch-error-workaround
+           (lambda _
+             (setenv "PY_IGNORE_IMPORTMISMATCH" "1")
+             #t)))))
     (propagated-inputs
      `(("python-sortedcontainers" ,python-sortedcontainers)))
     (native-inputs

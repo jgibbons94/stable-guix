@@ -17,6 +17,7 @@
 ;;; Copyright © 2019 Sebastian Schott <sschott@mailbox.org>
 ;;; Copyright © 2020 Kei Kebreau <kkebreau@posteo.net>
 ;;; Copyright © 2020 Christopher Lemmer Webber <cwebber@dustycloud.org>
+;;; Copyright © 2020 Tom Zander <tomz@freedommail.ch>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -40,6 +41,7 @@
   #:use-module (guix git-download)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system cmake)
+  #:use-module (guix build-system emacs)
   #:use-module (guix build-system python)
   #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix build-system go)
@@ -388,11 +390,11 @@ This package provides the Emacs mode.")
     (synopsis "Free Elster client, for sending Germany VAT declarations")
     (description
      "Geierlein is a free Elster client, i.e. an application that
-allows to send VAT declarations to Germany's fiscal authorities.
+sends VAT declarations to Germany's fiscal authorities.
 
 Currently it is *not* possible to send returns that are due annually
 (especially the income tax return) since the fiscal authority doesn't
-allow to do that off the ERiC library (which is proprietary however).
+allow doing that off the ERiC library (which is proprietary however).
 It's not clear at the moment whether one day it will be possible to
 do so.")
     (license license:agpl3+)))
@@ -1047,13 +1049,13 @@ Luhn and family of ISO/IEC 7064 check digit algorithms. ")
 (define-public python-duniterpy
   (package
     (name "python-duniterpy")
-    (version "0.56.0")
+    (version "0.57.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "duniterpy" version))
        (sha256
-        (base32 "1h8d8cnr6k5sw4cqy8r82zy4ldzpvn4nlk2221lz2haqq7xm4s5z"))))
+        (base32 "0rw2c7r9gcqhymp82gbk1ky45zqbypsi2q5x4vdwjc6g00kh7h6l"))))
     (build-system python-build-system)
     (arguments
      ;; FIXME: Tests fail with: "ModuleNotFoundError: No module named
@@ -1400,6 +1402,109 @@ electronic cash system.  This package provides a command line client and
 a Qt GUI.")
     (license license:expat)))
 
+(define-public fulcrum
+  (package
+    (name "fulcrum")
+    (version "1.0.5b")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://gitlab.com/FloweeTheHub/fulcrum/-/archive/v"
+                           version "/fulcrum-v" version ".tar.gz"))
+       (sha256
+        (base32 "1c1hkik8avill8ha33g76rk4b03j5ac8wiml69q4jav7a63ywgfy"))))
+    (build-system gnu-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         ;; Call qmake instead of configure to create a Makefile.
+         (replace 'configure
+           (lambda _
+             (invoke
+              "qmake"
+              (string-append "PREFIX=" %output)
+              "features="))))))
+    (native-inputs
+     `(("qttools" ,qttools)))
+    (inputs
+     `(("python" ,python)
+       ("qtbase" ,qtbase)
+       ("rocksdb" ,rocksdb)
+       ("zlib" ,zlib)))
+    (home-page "https://gitlab.com/FloweeTheHub/fulcrum/")
+    (synopsis "Fast and nimble SPV server for Bitcoin Cash")
+    (description
+     "Flowee Fulcrum is a server that is the back-end for @acronym{SPV,
+Simplified Payment Verification} wallets, it provides the full API for those
+walets in a fast and small server.  The full data is stored in a full node,
+like Flowee the Hub, which Fulcrum connects to over RPC.")
+    (license license:gpl3+)))
+
+(define-public flowee
+  (package
+    (name "flowee")
+    (version "2020.03.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://gitlab.com/FloweeTheHub/thehub/-/archive/"
+                            version "/thehub-" version ".tar.gz"))
+       (sha256
+         (base32 "1ajd5axv9zyhh6njrvamm11zn52j1q4j3mwn2nfv7cjd4lhnhlsr"))))
+    (build-system cmake-build-system)
+    (arguments
+     `(#:configure-flags '("-Dbuild_tests=ON" "-Denable_gui=OFF")
+       #:phases
+        (modify-phases %standard-phases
+          (add-before 'configure 'make-qt-deterministic
+            (lambda _
+              ;; Make Qt deterministic.
+              (setenv "QT_RCC_SOURCE_DATE_OVERRIDE" "1")
+             #t))
+          (add-before 'configure 'disable-black-box
+            ;; the black-box testing runs full hubs and lets them interact.
+            ;; this is more fragile and a slow machine, or low memory machine, may
+            ;; make the tests timeout and fail.  We just disable them here.
+            (lambda _
+              (substitute* "testing/CMakeLists.txt"
+                (("test_api") ""))
+              #t))
+          (add-after 'configure 'set-build-info
+            ;; Their genbuild.sh to generate a build.h fails in guix (no .git dir) .
+            ;; Its purpose is to write the tag name in the build.h file. We do that
+            ;; here instead.
+            (lambda _
+              (with-output-to-file "include/build.h"
+                (lambda _
+                  (display
+                    (string-append "#define BUILD_DESC " "\"", version "\""))))))
+          (add-before 'check 'set-home
+            (lambda _
+              (setenv "HOME" (getenv "TMPDIR")) ; tests write to $HOME
+              #t))
+          (replace 'check
+            (lambda _
+              (invoke "make" "check" "-C" "testing"))))))
+    (inputs
+     `(("boost" ,boost)
+       ("gmp" ,gmp)
+       ("libevent" ,libevent)
+       ("miniupnpc" ,miniupnpc)
+       ("openssl" ,openssl)
+       ("qtbase" ,qtbase)))
+    (native-inputs
+     `(("pkg-config" ,pkg-config)
+       ("qttools" ,qttools)
+       ("util-linux" ,util-linux)))       ; provides the hexdump command for tests
+    (home-page "https://flowee.org")
+    (synopsis "Flowee infrastructure tools and services")
+    (description
+     "Flowee packages all tier-1 applications and services from the Flowee group.
+This includes components like The Hub and Indexer which and various others
+that allows you to run services and through them access the Bitcoin Cash networks.")
+    (license license:gpl3+)))
+
+
 (define-public beancount
   (package
     (name "beancount")
@@ -1423,7 +1528,7 @@ a Qt GUI.")
              (substitute* "setup.py"
                (("'google-api-python-client',") ""))
              #t)))))
-    (propagated-inputs
+    (inputs
      `(("python-beautifulsoup4" ,python-beautifulsoup4)
        ("python-bottle" ,python-bottle)
        ("python-chardet" ,python-chardet)
@@ -1431,8 +1536,9 @@ a Qt GUI.")
        ("python-lxml" ,python-lxml)
        ("python-magic" ,python-magic)
        ("python-ply" ,python-ply)
-       ("python-pytest" ,python-pytest)
        ("python-requests" ,python-requests)))
+    (native-inputs
+     `(("python-pytest" ,python-pytest)))
     (home-page "http://furius.ca/beancount")
     (synopsis "Command-line double-entry accounting tool")
     (description
@@ -1440,3 +1546,23 @@ a Qt GUI.")
 define financial transaction records in a text file, read them in memory,
 generate a variety of reports from them, and provides a web interface.")
     (license license:gpl2)))
+
+;; The beancount source ships with elisp in a subdirectory
+(define-public emacs-beancount
+  (package
+    (inherit beancount)
+    (name "emacs-beancount")
+    (build-system emacs-build-system)
+    (arguments
+     `(#:tests? #f ;no tests
+       #:phases
+       (modify-phases %standard-phases
+         (add-before 'install 'chdir-emacs
+           (lambda _
+             (chdir "editors/emacs")
+             #t)))))
+    (inputs '())
+    (native-inputs '())
+    (synopsis "Emacs mode for beancount")
+    (description
+      "Emacs-beancount is an Emacs mode for the Beancount accounting tool.")))

@@ -70,18 +70,6 @@
         `(cons ,(string-append "--target=" target)
                ,flags))))))
 
-(define (package-with-patches original patches)
-  "Return package ORIGINAL with PATCHES applied."
-  (package (inherit original)
-    (source (origin (inherit (package-source original))
-                    (patches patches)))))
-
-(define (package-with-extra-patches original patches)
-  "Return package ORIGINAL with all PATCHES appended to its list of patches."
-  (package-with-patches original
-                        (append (origin-patches (package-source original))
-                                patches)))
-
 (define (cross-binutils target)
   "Return a cross-Binutils for TARGET."
   (let ((binutils (package (inherit binutils)
@@ -110,9 +98,8 @@
                  ((target-mingw? target)
                   (package-with-extra-patches
                    binutils
-                   (search-patches
-                    "binutils-mingw-w64-specify-timestamp.patch"
-                    "binutils-mingw-w64-reproducible-import-libraries.patch")))
+                   (search-patches "binutils-mingw-w64-timestamp.patch"
+                                   "binutils-mingw-w64-deterministic.patch")))
                  (else binutils))
            target)))
 

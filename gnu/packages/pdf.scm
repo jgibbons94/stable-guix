@@ -135,7 +135,7 @@ where Flyer Composer steps in, creating a PDF which holds your flyer four
 times.  If you have a second page, Flyer Composer can arrange it the same way
 - even if the second page is in a separate PDF file.
 
-This package contains both the commnd line tool and the gui too.")
+This package contains both the command line tool and the gui too.")
     (license license:agpl3+)))
 
 (define-public flyer-composer-cli
@@ -162,7 +162,7 @@ where Flyer Composer steps in, creating a PDF which holds your flyer four
 times.  If you have a second page, Flyer Composer can arrange it the same way
 - even if the second page is in a separate PDF file.
 
-This package contains only the commnd line tool.  If you like to use the gui,
+This package contains only the command line tool.  If you like to use the gui,
 please install the @code{flyer-composer-gui} package.")))
 
 (define-public poppler
@@ -822,7 +822,7 @@ using a stylus.")
 (define-public xournalpp
   (package
     (name "xournalpp")
-    (version "1.0.17")
+    (version "1.0.18")
     (source
      (origin
        (method git-fetch)
@@ -831,7 +831,7 @@ using a stylus.")
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0xw2mcgnm4sa9hrhfgp669lfypw97drxjmz5w8i5whaprpvmkxzw"))))
+        (base32 "0a9ygbmd4dwgck3k8wsrm2grynqa0adb12wwspzmzvpisbadffjy"))))
     (build-system cmake-build-system)
     (arguments
      `(#:configure-flags (list "-DENABLE_CPPUNIT=ON") ;enable tests
@@ -844,11 +844,6 @@ using a stylus.")
        (modify-phases %standard-phases
          (add-after 'unpack 'fix-permissions-on-po-files
            (lambda _
-             ;; Always generate translations.  A recent upstream patch
-             ;; disabled it.
-             (substitute* "po/CMakeLists.txt"
-               (("gettext_create_translations \\(\"\\$\\{potfile\\}\"\\)")
-                "gettext_create_translations (\"${potfile}\" ALL)"))
              ;; Make sure 'msgmerge' can modify the PO files.
              (for-each (lambda (po) (chmod po #o666))
                        (find-files "." "\\.po$"))
@@ -857,7 +852,6 @@ using a stylus.")
            (assoc-ref glib-or-gtk:%standard-phases 'glib-or-gtk-wrap)))))
     (native-inputs
      `(("cppunit" ,cppunit)
-       ("gcc" ,gcc-8)                   ;requires gcc 8+
        ("gettext" ,gettext-minimal)
        ("pkg-config" ,pkg-config)))
     (inputs
@@ -885,7 +879,7 @@ Xournal++ features:
 @item Fill shape functionality
 @item PDF Export (with and without paper style)
 @item PNG Export (with and without transparent background)
-@item Allow to map different tools / colors etc. to stylus buttons /
+@item Map different tools / colors etc. to stylus buttons /
 mouse buttons
 @item Sidebar with Page Previews with advanced page sorting, PDF
 Bookmarks and Layers (can be individually hidden, editing layer can be

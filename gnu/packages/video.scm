@@ -38,6 +38,7 @@
 ;;; Copyright © 2020 Oleg Pykhalov <go.wigust@gmail.com>
 ;;; Copyright © 2020 Josh Holland <josh@inv.alid.pw>
 ;;; Copyright © 2020 Brice Waegeneire <brice@waegenei.re>
+;;; Copyright © 2020 Vincent Legoll <vincent.legoll@gmail.com>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -214,14 +215,14 @@ old-fashioned output methods with powerful ascii-art renderer.")
 (define-public celluloid
   (package
     (name "celluloid")
-    (version "0.18")
+    (version "0.19")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://github.com/celluloid-player/celluloid/releases"
                            "/download/v" version "/celluloid-" version ".tar.xz"))
        (sha256
-        (base32 "0gmscx9zb8ppfjlnmgbcmhknhawa05sdhxi7dv5wjapjq0glq481"))))
+        (base32 "1s3qkism96gi44incvsb6rqg255qcvjvw61ya7nw30md0sapj4sl"))))
     (build-system glib-or-gtk-build-system)
     (native-inputs
      `(("intltool" ,intltool)
@@ -602,7 +603,7 @@ available.")
 (define-public x265
   (package
     (name "x265")
-    (version "3.2.1")
+    (version "3.3")
     (outputs '("out" "static"))
     (source
       (origin
@@ -612,7 +613,7 @@ available.")
                    (string-append "https://download.videolan.org/videolan/x265/"
                                   "x265_" version ".tar.gz")))
         (sha256
-         (base32 "1k5vijsy6cgcghw69f5275xfmbjjx7js0nlbgxbd6krnjb7sv6zv"))
+         (base32 "170b61cgpcs5n35qps0p40dqs1q81vkgagzbs4zv7pzls6718vpj"))
         (patches (search-patches "x265-arm-flags.patch"))
         (modules '((guix build utils)))
         (snippet '(begin
@@ -758,7 +759,7 @@ canvas operations.")
 (define-public libdca
   (package
     (name "libdca")
-    (version "0.0.6")
+    (version "0.0.7")
     (source (origin
               (method url-fetch)
               (uri (string-append
@@ -766,8 +767,12 @@ canvas operations.")
                     version "/libdca-" version ".tar.bz2"))
               (sha256
                (base32
-                "0h0zvcn97i9kyljdpifzi8in9xnw31fx3b3ggj96p8h0l2d8mycq"))))
+                "0sjz0s0nrv7jcpvh1i432x3jza0y5yycmzw84cfncb2qby0i62rs"))))
     (build-system gnu-build-system)
+    (native-inputs
+     `(("autoconf" ,autoconf)
+       ("automake" ,automake)
+       ("libtool" ,libtool)))
     (home-page "https://www.videolan.org/developers/libdca.html")
     (synopsis "DTS Coherent Acoustics decoder")
     (description "libdca is a library for decoding DTS Coherent Acoustics
@@ -1621,25 +1626,6 @@ To load this plugin, specify the following option when starting mpv:
     (description "libvpx is a codec for the VP8/VP9 video compression format.")
     (license license:bsd-3)
     (home-page "https://www.webmproject.org/")))
-
-;; GNU IceCat fails to build against 1.8.0, so keep this version for now.
-(define-public libvpx-1.7
-  (package
-    (inherit libvpx)
-    (version "1.7.0")
-    (source (origin
-              (inherit (package-source libvpx))
-              (uri (git-reference
-                    (url "https://chromium.googlesource.com/webm/libvpx")
-                    (commit (string-append "v" version))))
-              (file-name (git-file-name "libvpx" version))
-              (sha256
-               (base32
-                "0vvh89hvp8qg9an9vcmwb7d9k3nixhxaz6zi65qdjnd0i56kkcz6"))
-              (patches
-               (append
-                (origin-patches (package-source libvpx))
-                (search-patches "libvpx-use-after-free-in-postproc.patch")))))))
 
 (define-public youtube-dl
   (package
@@ -3282,7 +3268,6 @@ programmers to access a standard API to open and decompress media files.")
                  #t)))))
     (inputs
      `(("boost" ,boost)
-       ("desktop-file-utils" ,desktop-file-utils)
        ("ffms2" ,ffms2)
        ("fftw" ,fftw)
        ("hunspell" ,hunspell)
@@ -3295,6 +3280,7 @@ programmers to access a standard API to open and decompress media files.")
        ("wxwidgets-gtk2" ,wxwidgets-gtk2)))
     (native-inputs
      `(("intltool" ,intltool)
+       ("desktop-file-utils" ,desktop-file-utils)
        ("pkg-config" ,pkg-config)))
     (home-page "http://www.aegisub.org/")
     (synopsis "Subtitle engine")

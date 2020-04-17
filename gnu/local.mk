@@ -29,6 +29,7 @@
 # Copyright © 2020 Brendan Tildesley <mail@brendan.scot>
 # Copyright © 2020 Vincent Legoll <vincent.legoll@gmail.com>
 # Copyright © 2020 R Veera Kumar <vkor@vkten.in>
+# Copyright © 2020 Nicolò Balzarotti <nicolo@nixo.xyz
 #
 # This file is part of GNU Guix.
 #
@@ -255,7 +256,6 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/haskell-crypto.scm		\
   %D%/packages/haskell-web.scm			\
   %D%/packages/haskell-xyz.scm			\
-  %D%/packages/ham-radio.scm			\
   %D%/packages/hexedit.scm			\
   %D%/packages/hugs.scm				\
   %D%/packages/hurd.scm				\
@@ -320,6 +320,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/libusb.scm			\
   %D%/packages/libunwind.scm			\
   %D%/packages/lighting.scm                     \
+  %D%/packages/linphone.scm			\
   %D%/packages/linux.scm			\
   %D%/packages/lirc.scm				\
   %D%/packages/lisp.scm				\
@@ -434,6 +435,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/toys.scm				\
   %D%/packages/tryton.scm			\
   %D%/packages/qt.scm				\
+  %D%/packages/radio.scm			\
   %D%/packages/ragel.scm			\
   %D%/packages/rails.scm			\
   %D%/packages/ratpoison.scm			\
@@ -462,7 +464,6 @@ GNU_SYSTEM_MODULES =				\
   %D%/packages/scsi.scm				\
   %D%/packages/sdcc.scm				\
   %D%/packages/sdl.scm				\
-  %D%/packages/sdr.scm				\
   %D%/packages/search.scm			\
   %D%/packages/security-token.scm		\
   %D%/packages/selinux.scm			\
@@ -568,6 +569,7 @@ GNU_SYSTEM_MODULES =				\
   %D%/services/getmail.scm			\
   %D%/services/guix.scm				\
   %D%/services/kerberos.scm			\
+  %D%/services/linux.scm			\
   %D%/services/lirc.scm				\
   %D%/services/virtualization.scm		\
   %D%/services/mail.scm				\
@@ -661,6 +663,7 @@ INSTALLER_MODULES =                             \
   %D%/installer/locale.scm			\
   %D%/installer/newt.scm			\
   %D%/installer/parted.scm			\
+  %D%/installer/proxy.scm			\
   %D%/installer/record.scm		        \
   %D%/installer/services.scm			\
   %D%/installer/steps.scm			\
@@ -671,6 +674,7 @@ INSTALLER_MODULES =                             \
 						\
   %D%/installer/newt/ethernet.scm		\
   %D%/installer/newt/final.scm  		\
+  %D%/installer/newt/parameters.scm		\
   %D%/installer/newt/hostname.scm		\
   %D%/installer/newt/keymap.scm			\
   %D%/installer/newt/locale.scm			\
@@ -722,7 +726,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/aegisub-boost68.patch                    \
   %D%/packages/patches/agg-am_c_prototype.patch			\
   %D%/packages/patches/akonadi-paths.patch		\
-  %D%/packages/patches/akonadi-Revert-Make-installation-properly-relo.patch \
+  %D%/packages/patches/akonadi-not-relocatable.patch		\
   %D%/packages/patches/akonadi-timestamps.patch		\
   %D%/packages/patches/allegro-mesa-18.2.5-and-later.patch	\
   %D%/packages/patches/amule-crypto-6.patch			\
@@ -772,8 +776,8 @@ dist_patch_DATA =						\
   %D%/packages/patches/bidiv-update-fribidi.patch		\
   %D%/packages/patches/binutils-boot-2.20.1a.patch		\
   %D%/packages/patches/binutils-loongson-workaround.patch	\
-  %D%/packages/patches/binutils-mingw-w64-specify-timestamp.patch \
-  %D%/packages/patches/binutils-mingw-w64-reproducible-import-libraries.patch \
+  %D%/packages/patches/binutils-mingw-w64-timestamp.patch	\
+  %D%/packages/patches/binutils-mingw-w64-deterministic.patch	\
   %D%/packages/patches/blender-2.79-newer-ffmpeg.patch		\
   %D%/packages/patches/blender-2.79-python-3.7-fix.patch	\
   %D%/packages/patches/bluez-CVE-2020-0556.patch		\
@@ -820,6 +824,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/cvs-CVE-2017-12836.patch		\
   %D%/packages/patches/date-output-pkg-config-files.patch	\
   %D%/packages/patches/darkice-workaround-fpermissive-error.patch	\
+  %D%/packages/patches/dbacl-include-locale.h.patch		\
   %D%/packages/patches/dbus-helper-search-path.patch		\
   %D%/packages/patches/dbus-c++-gcc-compat.patch		\
   %D%/packages/patches/dbus-c++-threading-mutex.patch		\
@@ -929,6 +934,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/gd-CVE-2019-6978.patch			\
   %D%/packages/patches/gd-fix-tests-on-i686.patch		\
   %D%/packages/patches/gd-freetype-test-failure.patch		\
+  %D%/packages/patches/gdm-default-session.patch		\
   %D%/packages/patches/geoclue-config.patch			\
   %D%/packages/patches/ghc-8.0-fall-back-to-madv_dontneed.patch \
   %D%/packages/patches/ghc-diff-swap-cover-args.patch           \
@@ -1030,7 +1036,6 @@ dist_patch_DATA =						\
   %D%/packages/patches/hdf-eos5-remove-gctp.patch		\
   %D%/packages/patches/hdf-eos5-fix-szip.patch			\
   %D%/packages/patches/hdf-eos5-fortrantests.patch		\
-  %D%/packages/patches/higan-remove-march-native-flag.patch	\
   %D%/packages/patches/hubbub-sort-entities.patch		\
   %D%/packages/patches/hurd-fix-eth-multiplexer-dependency.patch        \
   %D%/packages/patches/hplip-remove-imageprocessor.patch	\
@@ -1065,6 +1070,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/jfsutils-add-sysmacros.patch		\
   %D%/packages/patches/jfsutils-include-systypes.patch		\
   %D%/packages/patches/jsoncpp-fix-inverted-case.patch		\
+  %D%/packages/patches/julia-SOURCE_DATE_EPOCH-mtime.patch	\
   %D%/packages/patches/kdbusaddons-kinit-file-name.patch	\
   %D%/packages/patches/libnftnl-dont-check-NFTNL_FLOWTABLE_SIZE.patch	\
   %D%/packages/patches/libvirt-create-machine-cgroup.patch	\
@@ -1158,7 +1164,6 @@ dist_patch_DATA =						\
   %D%/packages/patches/libvnc-CVE-2018-20750.patch		\
   %D%/packages/patches/libvnc-CVE-2019-15681.patch		\
   %D%/packages/patches/libvpx-CVE-2016-2818.patch		\
-  %D%/packages/patches/libvpx-use-after-free-in-postproc.patch	\
   %D%/packages/patches/libxslt-generated-ids.patch		\
   %D%/packages/patches/libxt-guix-search-paths.patch		\
   %D%/packages/patches/lierolibre-check-unaligned-access.patch	\
@@ -1198,6 +1203,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/mcrypt-CVE-2012-4426.patch			\
   %D%/packages/patches/mcrypt-CVE-2012-4527.patch			\
   %D%/packages/patches/libmemcached-build-with-gcc7.patch	\
+  %D%/packages/patches/mediastreamer2-srtp2.patch		\
   %D%/packages/patches/mesa-skip-disk-cache-test.patch		\
   %D%/packages/patches/mescc-tools-boot.patch			\
   %D%/packages/patches/meson-for-build-rpath.patch		\
@@ -1284,7 +1290,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/sdl-pango-api_additions.patch		\
   %D%/packages/patches/sdl-pango-blit_overflow.patch		\
   %D%/packages/patches/sdl-pango-fillrect_crash.patch		\
-  %D%/packages/patches/sdl-pango-fix-explicit-SDLPango_CopyFTBitmapTo.patch	\
+  %D%/packages/patches/sdl-pango-header-guard.patch		\
   %D%/packages/patches/sdl-pango-matrix_declarations.patch	\
   %D%/packages/patches/sdl-pango-sans-serif.patch		\
   %D%/packages/patches/patchutils-test-perms.patch		\
@@ -1360,7 +1366,7 @@ dist_patch_DATA =						\
   %D%/packages/patches/python-pep8-stdlib-tokenize-compat.patch \
   %D%/packages/patches/python-pyfakefs-remove-bad-test.patch	\
   %D%/packages/patches/python-flint-includes.patch		\
-  %D%/packages/patches/python-jedi-deleted-variables.patch	\
+  %D%/packages/patches/python-jedi-sort-project-test.patch	\
   %D%/packages/patches/python-libxml2-utf8.patch		\
   %D%/packages/patches/python-mox3-python3.6-compat.patch	\
   %D%/packages/patches/python-testtools.patch			\
@@ -1476,7 +1482,6 @@ dist_patch_DATA =						\
   %D%/packages/patches/ttfautohint-source-date-epoch.patch	\
   %D%/packages/patches/tomb-fix-errors-on-open.patch		\
   %D%/packages/patches/tuxpaint-stamps-path.patch		\
-  %D%/packages/patches/txr-shell.patch				\
   %D%/packages/patches/u-boot-riscv64-fix-extlinux.patch	\
   %D%/packages/patches/ucx-tcp-iface-ioctl.patch		\
   %D%/packages/patches/udiskie-no-appindicator.patch		\

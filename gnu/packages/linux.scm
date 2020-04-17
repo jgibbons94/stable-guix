@@ -369,50 +369,50 @@ corresponding UPSTREAM-SOURCE (an origin), using the given DEBLOB-SCRIPTS."
     (sha256 hash)))
 
 
-(define-public linux-libre-5.6-version "5.6.2")
+(define-public linux-libre-5.6-version "5.6.4")
 (define-public linux-libre-5.6-pristine-source
   (let ((version linux-libre-5.6-version)
-        (hash (base32 "1fdmcx5fk9wq9yx6vvnw76nvdysbvm83cik1dj1d67lw6bc92k9d")))
+        (hash (base32 "14cxbc9xi4s3xwx4yb1yd4z0kidsk3d443skf5sgmdhcalg79wax")))
    (make-linux-libre-source version
                             (%upstream-linux-source version hash)
                             deblob-scripts-5.6)))
 
-(define-public linux-libre-5.4-version "5.4.30")
+(define-public linux-libre-5.4-version "5.4.32")
 (define-public linux-libre-5.4-pristine-source
   (let ((version linux-libre-5.4-version)
-        (hash (base32 "1vwx6j87pkfyq68chng1hy0c85hpc2byabiv1pcikrmw07vpip8i")))
+        (hash (base32 "1czjjnln1cqrnjxw0md6mpw9haw9abdyvmxnjds56ym4nzx9jb8r")))
    (make-linux-libre-source version
                             (%upstream-linux-source version hash)
                             deblob-scripts-5.4)))
 
-(define-public linux-libre-4.19-version "4.19.114")
+(define-public linux-libre-4.19-version "4.19.115")
 (define-public linux-libre-4.19-pristine-source
   (let ((version linux-libre-4.19-version)
-        (hash (base32 "03hz6vg5bg728ilbm4z997pf52cgxzsxb03vz5cs55gwdbfa0h0y")))
+        (hash (base32 "1hh170z3mv181l6cc6qqc12wif5jsmxbh2qxbq6b9km5irydkchi")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.19)))
 
-(define-public linux-libre-4.14-version "4.14.175")
+(define-public linux-libre-4.14-version "4.14.176")
 (define-public linux-libre-4.14-pristine-source
   (let ((version linux-libre-4.14-version)
-        (hash (base32 "0b12w0d21sk261jr4p1pm32v0r20a5c2j1p5hasdqw80sb2hli6b")))
+        (hash (base32 "18jwxhf29ax54xnylmz9zfkslnxw7y3h215dbfmmvddfp9b0kbmw")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.14)))
 
-(define-public linux-libre-4.9-version "4.9.218")
+(define-public linux-libre-4.9-version "4.9.219")
 (define-public linux-libre-4.9-pristine-source
   (let ((version linux-libre-4.9-version)
-        (hash (base32 "1ka98c8sbfipzll6ss9fcsn26lh4cy60372yfw27pif4brhnwfnz")))
+        (hash (base32 "0i5wlyp11ss9p035bhq73xjx8iyk5dk4ynvd7msw5qfkrs6265vb")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.9)))
 
-(define-public linux-libre-4.4-version "4.4.218")
+(define-public linux-libre-4.4-version "4.4.219")
 (define-public linux-libre-4.4-pristine-source
   (let ((version linux-libre-4.4-version)
-        (hash (base32 "0qzhcy8i111jbpnkpzq7hqf9nkwq4s7smi820hfvnmd2ky7cns7a")))
+        (hash (base32 "1mpxqb2m24ay4n9px4n2cyklxy4lhnv9q6wlvilx13rs5qfbb62f")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.4)))
@@ -821,12 +821,6 @@ It has been modified to remove all non-free binary blobs.")
 ;;; Generic kernel packages.
 ;;;
 
-(define-public linux-libre-5.6
-  (make-linux-libre* linux-libre-5.6-version
-                     linux-libre-5.6-source
-		     '("x86_64-linux" "i686-linux" "armhf-linux" "aarch64-linux" "riscv64-linux")
-                     #:configuration-file kernel-config))
-
 (define-public linux-libre-5.4
   (make-linux-libre* linux-libre-5.4-version
                      linux-libre-5.4-source
@@ -878,14 +872,24 @@ It has been modified to remove all non-free binary blobs.")
                      linux-libre-source
                      '("armhf-linux")
                      #:defconfig "multi_v7_defconfig"
-                     #:extra-version "arm-generic"))
+                     #:extra-version "arm-generic"
+                     #:extra-options
+                     (append
+                      `(;; needed to fix the RTC on rockchip platforms
+                        ("CONFIG_RTC_DRV_RK808" . #t))
+                      %default-extra-linux-options)))
 
 (define-public linux-libre-arm-generic-5.6
   (make-linux-libre* linux-libre-5.6-version
                      linux-libre-5.6-source
                      '("armhf-linux")
                      #:defconfig "multi_v7_defconfig"
-                     #:extra-version "arm-generic"))
+                     #:extra-version "arm-generic"
+                     #:extra-options
+                     (append
+                      `(;; needed to fix the RTC on rockchip platforms
+                        ("CONFIG_RTC_DRV_RK808" . #t))
+                      %default-extra-linux-options)))
 
 (define-public linux-libre-arm-veyron
   (deprecated-package "linux-libre-arm-veyron" linux-libre-arm-generic))
@@ -930,14 +934,24 @@ It has been modified to remove all non-free binary blobs.")
                      linux-libre-source
                      '("aarch64-linux")
                      #:defconfig "defconfig"
-                     #:extra-version "arm64-generic"))
+                     #:extra-version "arm64-generic"
+		     #:extra-options
+                     (append
+                      `(;; needed to fix the RTC on rockchip platforms
+                        ("CONFIG_RTC_DRV_RK808" . #t))
+                      %default-extra-linux-options)))
 
 (define-public linux-libre-arm64-generic-5.6
   (make-linux-libre* linux-libre-5.6-version
                      linux-libre-5.6-source
                      '("aarch64-linux")
                      #:defconfig "defconfig"
-                     #:extra-version "arm64-generic"))
+                     #:extra-version "arm64-generic"
+                     #:extra-options
+                     (append
+                      `(;; needed to fix the RTC on rockchip platforms
+                        ("CONFIG_RTC_DRV_RK808" . #t))
+                      %default-extra-linux-options)))
 
 (define-public linux-libre-riscv64-generic
   (make-linux-libre* linux-libre-version
@@ -1491,16 +1505,16 @@ slabtop, and skill.")
 (define-public e2fsprogs
   (package
     (name "e2fsprogs")
-    (version "1.45.5")
+    (version "1.45.6")
     (source (origin
              (method url-fetch)
              (uri (string-append
                    "mirror://kernel.org/linux/kernel/people/tytso/"
-                   name "/v" version "/"
-                   name "-" version ".tar.xz"))
+                   "e2fsprogs/v" version "/"
+                   "e2fsprogs-" version ".tar.xz"))
              (sha256
               (base32
-               "1pmf8inp736l587rqq7qsd8bv0mmg5cwrivxg5p5awqgv70crypr"))))
+               "0mj2yizwygs7xww8jfy5mxjn8ww4pvc0b1hg1p2vsnirailsx9zz"))))
     (build-system gnu-build-system)
     (inputs `(("util-linux" ,util-linux)))
     (native-inputs `(("pkg-config" ,pkg-config)
@@ -4311,7 +4325,7 @@ and copy/paste text in the console and in xterm.")
 (define-public btrfs-progs
   (package
     (name "btrfs-progs")
-    (version "5.4.1")
+    (version "5.6")
     (source (origin
               (method url-fetch)
               (uri (string-append "mirror://kernel.org/linux/kernel/"
@@ -4319,7 +4333,7 @@ and copy/paste text in the console and in xterm.")
                                   "btrfs-progs-v" version ".tar.xz"))
               (sha256
                (base32
-                "0scxg9p6z0wss92gmv5a8yxdmr8x449kb5v3bfnvs26n92r7zq7k"))))
+                "0srg276yccfmqz0skmmga3vbqx4wiqsk1l6h86n6ryhxa9viqcm1"))))
     (build-system gnu-build-system)
     (outputs '("out"
                "static"))      ; static versions of the binaries in "out"
@@ -4589,7 +4603,7 @@ feature, and a laptop with an accelerometer.  It has no effect on SSDs.")
 (define-public thinkfan
   (package
     (name "thinkfan")
-    (version "1.0.2")
+    (version "1.1")
     (source
      (origin
        (method git-fetch)
@@ -4598,7 +4612,7 @@ feature, and a laptop with an accelerometer.  It has no effect on SSDs.")
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "107vw0962hrwva3wra9n3hxlbfzg82ldc10qssv3dspja88g8psr"))))
+        (base32 "1fxd1w3z65glw6y04myn7ihgswkx6sqnkky159mik4n96pfrsvr5"))))
     (build-system cmake-build-system)
     (arguments
      `(#:modules ((guix build cmake-build-system)

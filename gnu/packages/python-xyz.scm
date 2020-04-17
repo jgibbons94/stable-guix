@@ -8,7 +8,7 @@
 ;;; Copyright © 2015 Omar Radwan <toxemicsquire4@gmail.com>
 ;;; Copyright © 2015 Pierre-Antoine Rault <par@rigelk.eu>
 ;;; Copyright © 2015, 2016, 2017, 2018, 2019, 2020 Ricardo Wurmus <rekado@elephly.net>
-;;; Copyright © 2015, 2016 Christopher Allan Webber <cwebber@dustycloud.org>
+;;; Copyright © 2015, 2016, 2020 Christopher Allan Webber <cwebber@dustycloud.org>
 ;;; Copyright © 2015 Eric Dvorsak <eric@dvorsak.fr>
 ;;; Copyright © 2015, 2016 David Thompson <davet@gnu.org>
 ;;; Copyright © 2015, 2016, 2017, 2019 Leo Famulari <leo@famulari.name>
@@ -75,6 +75,7 @@
 ;;; Copyright © 2020 Alexandros Theodotou <alex@zrythm.org>
 ;;; Copyright © 2020 Lars-Dominik Braun <ldb@leibniz-psychology.org>
 ;;; Copyright © 2020 Alex ter Weele <alex.ter.weele@gmail.com>
+;;; Copyright © 2020 Matthew Kraai <kraai@ftbfs.org>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -981,7 +982,16 @@ to rebuild the original object tree.
 
 Because only safe literals are encoded, it is safe to send serpent data to
 other machines, such as over the network.")
+    (properties `((python2-variant . ,(delay python2-serpent))))
     (license license:expat)))
+
+(define-public python2-serpent
+  (let ((base (package-with-python2 (strip-python2-variant python-serpent))))
+    (package
+      (inherit base)
+      (propagated-inputs
+       `(("python-enum34" ,python2-enum34)
+         ,@(package-propagated-inputs base))))))
 
 (define-public python-setuptools
   (package
@@ -1689,14 +1699,14 @@ Python 3.3+.")
 (define-public python-pyicu
   (package
     (name "python-pyicu")
-    (version "2.3.1")
+    (version "2.4.3")
     (source
      (origin
       (method url-fetch)
       (uri (pypi-uri "PyICU" version))
       (sha256
        (base32
-        "1x4w8m7ifki9z2a187pgjr33z6z0rp2fii9b73djak1vhm9v9cnx"))))
+        "075bw66b3w0nw6mc5k32fwmrhyrmq3d7da3q2mw212qfmm0pgjn0"))))
     (build-system python-build-system)
     (inputs
      `(("icu4c" ,icu4c)))
@@ -1707,24 +1717,10 @@ Python 3.3+.")
     (synopsis "Python extension wrapping the ICU C++ API")
     (description
      "PyICU is a python extension wrapping the ICU C++ API.")
-    (properties `((python2-variant . ,(delay python2-pyicu))))
     (license license:x11)))
 
 (define-public python2-pyicu
-  (let ((base (package-with-python2
-                (strip-python2-variant python-pyicu))))
-    (package
-      (inherit base)
-      (arguments
-       `(,@(package-arguments base)
-         #:phases
-         (modify-phases %standard-phases
-           (add-before 'check 'delete-failing-test
-             (λ _
-               ;; XXX: This fails due to Unicode issues unique to Python 2,
-               ;; it seems: <https://github.com/ovalhub/pyicu/issues/61>.
-               (delete-file "test/test_Script.py")
-               #t))))))))
+  (package-with-python2 python-pyicu))
 
 (define-public python2-dogtail
   ;; Python 2 only, as it leads to "TabError: inconsistent use of tabs and
@@ -2259,14 +2255,14 @@ from git information.
 (define-public python-pyrsistent
   (package
     (name "python-pyrsistent")
-    (version "0.15.7")
+    (version "0.16.0")
     (home-page "https://github.com/tobgu/pyrsistent")
     (source (origin
               (method url-fetch)
               (uri (pypi-uri "pyrsistent" version))
               (sha256
                (base32
-                "103j63g6lb5dfspph96zxjdpnq9h991kazd4f09ddgkpxpivbiyd"))))
+                "1lrsjgblnapfimd0alsi1as5nz2lfqv97131l7d6anbjzq2rjri8"))))
     (build-system python-build-system)
     (native-inputs
      `(("python-hypothesis" ,python-hypothesis)
@@ -2813,8 +2809,7 @@ environments and back.")
      "PyYAML is a YAML parser and emitter for Python.  PyYAML features a
 complete YAML 1.1 parser, Unicode support, pickle support, capable extension
 API, and sensible error messages.  PyYAML supports standard YAML tags and
-provides Python-specific tags that allow to represent an arbitrary Python
-object.")
+provides Python-specific tags that represent an arbitrary Python object.")
     (license license:expat)))
 
 (define-public python2-pyyaml
@@ -3543,7 +3538,7 @@ receive files via the SCP1 protocol, as implemented by the OpenSSH
     ;; Note: As of version 1.7 the documentation is not worth building.
     (home-page "https://github.com/jaraco/rst.linker")
     (synopsis "Sphinx plugin to add links and timestamps")
-    (description "rst.linker allows to automatically replace text by a
+    (description "rst.linker automatically replaces text by a
 reStructuredText external reference or timestamps.  It's primary purpose is to
 augment the changelog, but it can be used for other documents, too.")
     (license license:expat)))
@@ -5888,6 +5883,112 @@ away.")
 (define-public python2-ipython-genutils
   (package-with-python2 python-ipython-genutils))
 
+(define-public python-ipyparallel
+  (package
+    (name "python-ipyparallel")
+    (version "6.2.4")
+    (source
+      (origin
+        (method url-fetch)
+        (uri (pypi-uri "ipyparallel" version))
+        (sha256
+         (base32
+          "0rf0dbpxf5z82bw8lsjj45r3wdd4wc74anz4wiiaf2rbjqlb1ivn"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:tests? #f ; RuntimeError: IO Loop failed to start
+       #:phases
+       (modify-phases %standard-phases
+         (add-before 'check 'prepare-for-tests
+           (lambda _
+             (setenv "HOME" (getcwd))
+             #t)))))
+    (propagated-inputs
+     `(("python-dateutil" ,python-dateutil)
+       ("python-decorator" ,python-decorator)
+       ("python-ipykernel" ,python-ipykernel)
+       ("python-ipython" ,python-ipython)
+       ("python-ipython-genutils" ,python-ipython-genutils)
+       ("python-jupyter-client" ,python-jupyter-client)
+       ("python-pyzmq" ,python-pyzmq)
+       ("python-tornado" ,python-tornado)
+       ("python-traitlets" ,python-traitlets)))
+    (native-inputs
+     `(("python-ipython" ,python-ipython)
+       ("python-mock" ,python-mock)
+       ("python-nose" ,python-nose)
+       ("python-pytest" ,python-pytest)
+       ("python-pytest-cov" ,python-pytest-cov)
+       ("python-testpath" ,python-testpath)))
+    (home-page "https://ipython.org/")
+    (synopsis "Interactive Parallel Computing with IPython")
+    (description
+     "@code{ipyparallel} is a Python package and collection of CLI scripts for
+controlling clusters for Jupyter.  @code{ipyparallel} contains the following
+CLI scripts:
+@enumerate
+@item ipcluster - start/stop a cluster
+@item ipcontroller - start a scheduler
+@item ipengine - start an engine
+@end enumerate")
+    (license license:bsd-3)))
+
+(define-public python2-ipyparallel
+  (let ((ipyparallel (package-with-python2 python-ipyparallel)))
+    (package
+      (inherit ipyparallel)
+      (propagated-inputs
+       `(("python2-futures" ,python2-futures)
+         ,@(package-propagated-inputs ipyparallel))))))
+
+(define-public python-ipython-cluster-helper
+  (package
+    (name "python-ipython-cluster-helper")
+    (version "0.6.4")
+    (source
+      (origin
+        (method url-fetch)
+        (uri (pypi-uri "ipython-cluster-helper" version))
+        (sha256
+         (base32
+          "1l6mlwxlkxpbvawfwk6qffich7ahg9hq2bxfissgz6144p3k4arj"))
+        (modules '((guix build utils)))
+        (snippet
+         '(begin (substitute* "requirements.txt"
+                   (("ipython.*") "ipython\n"))
+                 #t))))
+    (build-system python-build-system)
+    (arguments
+     `(#:tests? #f      ; Test suite can't find IPython.
+       #:phases
+       (modify-phases %standard-phases
+         (replace 'check
+           (lambda* (#:key inputs outputs tests? #:allow-other-keys)
+             (if tests?
+               (begin
+                 (setenv "HOME" (getcwd))
+                 (add-installed-pythonpath inputs outputs)
+                 (invoke "python" "example/example.py" "--local"))
+               #t))))))
+    (propagated-inputs
+     `(("python-ipyparallel" ,python-ipyparallel)
+       ("python-ipython" ,python-ipython)
+       ("python-netifaces" ,python-netifaces)
+       ("python-pyzmq" ,python-pyzmq)
+       ("python-setuptools" ,python-setuptools)
+       ("python-six" ,python-six)))
+    (home-page "https://github.com/roryk/ipython-cluster-helper")
+    (synopsis
+     "Simplify IPython cluster start up and use for multiple schedulers")
+    (description
+     "@code{ipython-cluster-helper} creates a throwaway parallel IPython
+profile, launches a cluster and returns a view.  On program exit it shuts the
+cluster down and deletes the throwaway profile.")
+    (license license:expat)))
+
+(define-public python2-ipython-cluster-helper
+  (package-with-python2 python-ipython-cluster-helper))
+
 (define-public python-traitlets
   (package
     (name "python-traitlets")
@@ -6352,14 +6453,14 @@ computing.")
 (define-public python-urwid
   (package
     (name "python-urwid")
-    (version "2.0.1")
+    (version "2.1.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "urwid" version))
        (sha256
         (base32
-         "1g6cpicybvbananpjikmjk8npmjk4xvak1wjzji62wc600wkwkb4"))))
+         "11ndnhxd41m13darf5s0c6bafdpkzq1l6mfb04wbzdmyc1hg75h8"))))
     (build-system python-build-system)
     (home-page "http://urwid.org")
     (synopsis "Console user interface library for Python")
@@ -6667,14 +6768,14 @@ of the structure, dynamics, and functions of complex networks.")
 (define-public python-datrie
   (package
     (name "python-datrie")
-    (version "0.8")
+    (version "0.8.2")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "datrie" version))
        (sha256
         (base32
-         "0338r8xgmpy78556jhms0h6qkvyjr10p8bpgdvcpqzm9lrmxmmdx"))))
+         "0pbn32flkrpjiwfcknmj6398qa81ba783kbcvwan3kym73v0hnsj"))))
     (build-system python-build-system)
     (native-inputs
      `(("python-cython" ,python-cython)
@@ -9251,13 +9352,13 @@ minimal and fast API targeting the following uses:
 (define-public python-icalendar
   (package
     (name "python-icalendar")
-    (version "4.0.4")
+    (version "4.0.5")
     (source (origin
              (method url-fetch)
              (uri (pypi-uri "icalendar" version))
              (sha256
               (base32
-               "16gjvqv0n05jrb9g228pdjgzd3amz2pdhvcgsn1jypszjg5m2w9l"))))
+               "14ynjj65kfmlcvpb7k097w789wvxncd3cr3xz5m1jz9yl9v6vv5q"))))
     (build-system python-build-system)
     (propagated-inputs
      `(("python-dateutil" ,python-dateutil)
@@ -9357,9 +9458,9 @@ with a new public API, and RPython support.")
     (arguments
      '(#:phases
        (modify-phases %standard-phases
-	 (add-before 'install 'set-HOME
-	   (lambda _
-	     (setenv "HOME" "/tmp")))
+         (add-before 'install 'set-HOME
+           (lambda _
+             (setenv "HOME" "/tmp") #t))
          (replace 'check
            (lambda _
              ;; Tests require write access to HOME.
@@ -9373,8 +9474,6 @@ with a new public API, and RPython support.")
        ("python-colorama" ,python-colorama)
        ("python-clint" ,python-clint)
        ("python-rply" ,python-rply)
-       ("python-fastentrypoints"
-        ,python-fastentrypoints)
        ("python-funcparserlib"
         ,python-funcparserlib)))
     (home-page "http://hylang.org/")
@@ -10162,13 +10261,13 @@ programmatically interfacing with your system's $EDITOR.")
 (define-public python-vobject
   (package
     (name "python-vobject")
-    (version "0.9.5")
+    (version "0.9.6.1")
     (source (origin
               (method url-fetch)
               (uri (pypi-uri "vobject" version))
               (sha256
                (base32
-                "0hqjgf3ay1m5w1c0k00g5yfpdz1zni5qnr5rh9b8fg9hjvhwlmhg"))))
+                "0081g4gngw28j7vw8101jk600wz4gzfrhf5myrqvn2mrfkn2llcn"))))
     (build-system python-build-system)
     (arguments
      '(;; The test suite relies on some non-portable Windows interfaces.
@@ -10179,7 +10278,7 @@ programmatically interfacing with your system's $EDITOR.")
     (synopsis "Parse and generate vCard and vCalendar files")
     (description "Vobject is intended to be a full featured Python package for
 parsing and generating vCard and vCalendar files.  Currently, iCalendar files
-are supported and well tested. vCard 3.0 files are supported, and all data
+are supported and well tested.  vCard 3.0 files are supported, and all data
 should be imported, but only a few components are understood in a sophisticated
 way.")
     (home-page "https://eventable.github.io/vobject/")
@@ -11557,14 +11656,14 @@ until the object is actually required, and caches the result of said call.")
 (define-public python-dnspython
   (package
   (name "python-dnspython")
-  (version "1.15.0")
+  (version "1.16.0")
   (source (origin
             (method url-fetch)
             (uri (string-append "http://www.dnspython.org/kits/"
                                 version "/dnspython-" version ".tar.gz"))
             (sha256
              (base32
-              "0jr4v2pd90i6l1xxbss2m05psbjaxvyvvvpq44wycijpfgjqln8i"))))
+              "1yaw7irazy42n0kdhlk7wyg8ki34rxcnc5xbc1wfwy245b0wbxab"))))
   (build-system python-build-system)
   (arguments '(#:tests? #f)) ; XXX: requires internet access
   (home-page "http://www.dnspython.org")
@@ -11795,15 +11894,15 @@ characters, mouse support, and auto suggestions.")
 (define-public python-jedi
   (package
     (name "python-jedi")
-    (version "0.16.0")
+    (version "0.17.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "jedi" version))
-       (patches (search-patches "python-jedi-deleted-variables.patch"))
+       (patches (search-patches "python-jedi-sort-project-test.patch"))
        (sha256
         (base32
-         "1mb5kmrk9bkc3kwzx02j62cdan1jqd92q1z7h7wi9d30jg5p3j6m"))))
+         "0c1h9x3a9klvk2g288wl328x8xgzw7136k6vs9hkd56b85vcjh6z"))))
     (build-system python-build-system)
     (arguments
      `(#:phases
@@ -11811,7 +11910,7 @@ characters, mouse support, and auto suggestions.")
          (replace 'check
            (lambda _
              (setenv "HOME" "/tmp")
-             (invoke "python" "-m" "pytest"))))))
+             (invoke "python" "-m" "pytest" "-vv"))))))
     (native-inputs
      `(("python-pytest" ,python-pytest)
        ("python-docopt" ,python-docopt)))
@@ -12541,7 +12640,7 @@ by system tools such as ps and top).
 
 Changing the title is mostly useful in multi-process systems, for
 example when a master process is forked: changing the children's title
-allows to identify the task each process is busy with.  The technique
+allows identifying the task each process is busy with.  The technique
 is used by PostgreSQL and the OpenSSH Server for example.")
   (license license:bsd-3)
   (properties `((python2-variant . ,(delay python2-setproctitle))))))
@@ -16133,14 +16232,14 @@ time-based (TOTP) passwords.")
 (define-public python-parso
   (package
     (name "python-parso")
-    (version "0.6.2")
+    (version "0.7.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "parso" version))
        (sha256
         (base32
-         "0mr1j4ijqnrihz1yap34g6i8vjldg5lz814sz4v0d8pbqvh5jmhc"))))
+         "0b7irps2dqmzq41sxbpvxbivhh1x2hwmbqp45bbpd82446p9z3lh"))))
     (native-inputs
      `(("python-pytest" ,python-pytest)))
     (build-system python-build-system)
@@ -17005,26 +17104,35 @@ pure-Python.")
 (define-public python-cloudpickle
   (package
     (name "python-cloudpickle")
-    (version "0.6.1")
+    (version "1.3.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "cloudpickle" version))
        (sha256
         (base32
-         "1wdw89mlm7fqa3fm3ymskx05jrys66n8m1z1a8s0mss0799ahsgi"))))
+         "0lx7gy9clp427qwcm7b23zdsldpr03gy3vxxhyi8fpbhwz859brq"))))
     (build-system python-build-system)
-    ;; FIXME: there are 5 errors in 122 tests:
-    ;; ERROR: test_function_pickle_compat_0_4_0 (tests.cloudpickle_test.CloudPickleTest)
-    ;; ERROR: test_function_pickle_compat_0_4_1 (tests.cloudpickle_test.CloudPickleTest)
-    ;; ERROR: test_function_pickle_compat_0_4_0 (tests.cloudpickle_test.Protocol2CloudPickleTest)
-    ;; ERROR: test_function_pickle_compat_0_4_1 (tests.cloudpickle_test.Protocol2CloudPickleTest)
-    ;; ERROR: test_temp_file (tests.cloudpickle_file_test.CloudPickleFileTests)
-    ;; TypeError: cannot serialize '_io.BufferedRandom' object
-    (arguments '(#:tests? #f))
+    (arguments
+     '(#:phases (modify-phases %standard-phases
+                  (add-before 'check 'do-not-override-PYTHONPATH
+                    (lambda _
+                      ;; Append to PYTHONPATH instead of overriding it so
+                      ;; that dependencies from Guix can be found.
+                      (substitute* "tests/testutils.py"
+                        (("env\\['PYTHONPATH'\\] = pythonpath")
+                         "env['PYTHONPATH'] += os.pathsep + pythonpath"))
+                      #t))
+                  (replace 'check
+                    (lambda* (#:key tests? #:allow-other-keys)
+                      (if tests?
+                          (invoke "pytest" "-s" "-vv")
+                          (format #t "test suite not run~%"))
+                      #t)))))
     (native-inputs
-     `(("python-pytest" ,python-pytest)
-       ("python-mock" ,python-mock)
+     `(;; For tests.
+       ("python-psutil" ,python-psutil)
+       ("python-pytest" ,python-pytest)
        ("python-tornado" ,python-tornado)))
     (home-page "https://github.com/cloudpipe/cloudpickle")
     (synopsis "Extended pickling support for Python objects")
@@ -17034,10 +17142,19 @@ supported by the default pickle module from the Python standard library.  It
 is especially useful for cluster computing where Python expressions are
 shipped over the network to execute on remote hosts, possibly close to the
 data.")
+    (properties `((python2-variant . ,(delay python2-cloudpickle))))
     (license license:bsd-3)))
 
 (define-public python2-cloudpickle
-  (package-with-python2 python-cloudpickle))
+  (let ((base (package-with-python2 (strip-python2-variant python-cloudpickle))))
+    (package
+      (inherit base)
+      (native-inputs
+       `(("python-mock" ,python2-mock)
+         ,@(package-native-inputs base)))
+      (propagated-inputs
+       `(("python-futures" ,python2-futures)
+         ,@(package-propagated-inputs base))))))
 
 (define-public python-locket
   (package
@@ -17148,13 +17265,13 @@ decisions with any given backend.")
 (define-public python-dask
   (package
     (name "python-dask")
-    (version "2.9.0")
+    (version "2.14.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "dask" version))
        (sha256
-        (base32 "1w1hqr8vyx6ygwflj2737dcy0mmgvrc0s602gnny8pzlcbs9m76b"))))
+        (base32 "031j0j26s0675v0isyps2dphm03330n7dy8ifdy70jgvf78d119q"))))
     (build-system python-build-system)
     (arguments
      `(#:phases
@@ -18451,14 +18568,14 @@ tests.")
 (define-public python-gssapi
   (package
     (name "python-gssapi")
-    (version "1.6.1")
+    (version "1.6.5")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "gssapi" version))
        (sha256
         (base32
-         "1gymg4asvwrz7y13qpwp2s5g8qwq179d72gkj09q6bfcgs82l5wr"))))
+         "02i5s7998dg5kcr4m0xwamd8vjqk1816xbzldyp68l91f6bynwcr"))))
     (build-system python-build-system)
     (propagated-inputs
      `(("python-decorator" ,python-decorator)
@@ -18620,6 +18737,29 @@ Project, or not such a gitlab instance when your upstream doesn't use any
 dedicated platform.  The tool proposes a unified interface for any format and
 an upload option to send your work back to the platform.")
     (license license:gpl3+)))
+
+(define-public python-titlecase
+  (package
+    (name "python-titlecase")
+    (version "0.12.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "titlecase" version))
+       (sha256
+        (base32
+         "0486i99wf8ssa7sgn81fn6fv6i4rhhq6n751bc740b3hzfbpmpl4"))))
+    (build-system python-build-system)
+    (native-inputs
+     `(("python-nose" ,python-nose)))
+    (home-page "https://github.com/ppannuto/python-titlecase")
+    (synopsis "Capitalize strings similar to book titles")
+    (description
+     "Python-Titlecase is a Python port of John Gruber's titlecase.pl.
+It capitalizes (predominantly English) strings in a way that is similar to
+book titles, using the New York Times Manual of Style to leave certain words
+lowercase.")
+    (license license:expat)))
 
 (define-public python-pypng
   (package
@@ -18872,7 +19012,7 @@ logging in Python.  It also provides some custom formatters and handlers.")
     (home-page "https://github.com/jd/pifpaf")
     (synopsis "Tools and fixtures to manage daemons for testing in Python")
     (description "Pifpaf is a suite of fixtures and a command-line tool that
-allows to start and stop daemons for a quick throw-away usage.  This is typically
+starts and stops daemons for a quick throw-away usage.  This is typically
 useful when needing these daemons to run integration testing.  It originally
 evolved from its precursor @code{overtest}.")
     (license license:asl2.0)))
@@ -19079,28 +19219,6 @@ Macaroons allow for delegation and attenuation of authorization.  They are
 simple and fast to verify, and decouple authorization policy from the
 enforcement of that policy.")
     (license license:expat)))
-
-(define-public python-prometheus-client
-  (package
-    (name "python-prometheus-client")
-    (version "0.7.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "prometheus_client" version))
-       (sha256
-        (base32 "1ni2yv4ixwz32nz39ckia76lvggi7m19y5f702w5qczbnfi29kbi"))))
-    (build-system python-build-system)
-    (arguments
-     ;; TODO: No tests in the PyPI distribution.
-     `(#:tests? #f))
-    (propagated-inputs
-     `(("python-twisted" ,python-twisted)))
-    (home-page "https://github.com/prometheus/client_python")
-    (synopsis "Prometheus instrumentation library")
-    (description
-     "This is the official Python client for the Prometheus monitoring server.")
-    (license license:asl2.0)))
 
 (define-public python-ldap3
   (package
@@ -19344,3 +19462,48 @@ an identity provider.  The distribution contains examples of both.
 This package was originally written to work in a WSGI environment, but
 there are extensions that allow you to use it with other frameworks.")
     (license license:asl2.0)))
+
+(define-public python-click-plugins
+  (package
+    (name "python-click-plugins")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "click-plugins" version))
+       (sha256
+        (base32 "0jr6bxj67vg988vkm6nz8jj98v9lg46bn49lkhak3n598jbrkas6"))))
+    (build-system python-build-system)
+    (native-inputs
+     `(("python-pytest" ,python-pytest)))
+    (propagated-inputs
+     `(("python-click" ,python-click)))
+    (synopsis "Extension for Click to register external CLI commands")
+    (description "This package provides n extension module for Click to
+register external CLI commands via setuptools entry-points.")
+    (home-page "https://github.com/click-contrib/click-plugins")
+    (license license:bsd-3)))
+
+(define-public python-diceware
+  (package
+    (name "python-diceware")
+    (version "0.9.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "diceware" version))
+       (sha256
+        (base32
+         "0klb0ysybzlh2wihvir82hgq62v0jjmlcqklwajyms7c0p529yby"))))
+    (build-system python-build-system)
+    (native-inputs
+     `(("python-coverage" ,python-coverage)
+       ("python-pytest" ,python-pytest)
+       ("python-pytest-runner" ,python-pytest-runner)))
+    (home-page "https://github.com/ulif/diceware/")
+    (synopsis "Generates memorable passphrases")
+    (description "This package generates passphrases by concatenating words
+randomly picked from wordlists.  It supports several sources of
+randomness (including real life dice) and different wordlists (including
+cryptographically signed ones).")
+    (license license:gpl3+)))

@@ -37,6 +37,7 @@
 ;;; Copyright © 2020 Felix Gruber <felgru@posteo.net>
 ;;; Copyright © 2020 R Veera Kumar <vkor@vkten.in>
 ;;; Copyright © 2020 Vincent Legoll <vincent.legoll@gmail.com>
+;;; Copyright © 2020 Nicolò Balzarotti <nicolo@nixo.xyz>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -380,6 +381,81 @@ universal constants, atomic numbers, and constants related to
 semiconductors.")
     (license license:gpl3+)
     (home-page "https://www.gnu.org/software/dionysus/")))
+
+(define-public dsfmt
+  (package
+    (name "dsfmt")
+    (version "2.2.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+         (string-append
+           "http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/"
+           "dSFMT-src-" version ".tar.gz"))
+       (sha256
+        (base32
+         "03kaqbjbi6viz0n33dk5jlf6ayxqlsq4804n7kwkndiga9s4hd42"))
+       (modules '((guix build utils)))
+       ;; Don't distribute html documentation with bundled jquery.
+       (snippet
+        '(begin
+           (delete-file-recursively "html") #t))
+       ;; Add patches borrowed from Julia.
+       (patches
+         (list
+           (origin
+             (method url-fetch)
+             (uri (string-append
+                    "https://raw.githubusercontent.com/JuliaLang/julia/"
+                    "v1.3.0/deps/patches/dSFMT.c.patch"))
+             (sha256 (base32
+                      "09mhv11bms8jsmkmdqvlcgljwhzw3b6n9nncpi2b6dla9798hw2y"))
+             (file-name "dSFMT.c.patch"))
+           (origin
+             (method url-fetch)
+             (uri (string-append
+                    "https://raw.githubusercontent.com/JuliaLang/julia/"
+                    "v1.3.0/deps/patches/dSFMT.h.patch"))
+             (sha256 (base32
+                      "1py5rd0yxic335lzka23f6x2dhncrpizpyrk57gi2f28c0p98y5n"))
+             (file-name "dSFMT.h.patch"))))))
+    (build-system gnu-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (delete 'configure)            ; no configure script
+         (replace 'build
+           ;; Upstream Makefile does not build a shared library. Borrow from Julia
+           ;; https://github.com/JuliaLang/julia/blob/v1.3.0/deps/dsfmt.mk
+           (lambda _
+             (invoke
+               "gcc" "-DNDEBUG" "-DDSFMT_MEXP=19937"
+               "-fPIC" "-DDSFMT_DO_NOT_USE_OLD_NAMES"
+               "-O3" "-finline-functions" "-fomit-frame-pointer"
+               "-fno-strict-aliasing" "--param" "max-inline-insns-single=1800"
+               "-Wmissing-prototypes" "-Wall" "-std=c99" "-shared" "dSFMT.c"
+               "-o" "libdSFMT.so")))
+         (replace 'install              ; no "install" target
+           (lambda* (#:key outputs #:allow-other-keys)
+             (let* ((out (assoc-ref outputs "out"))
+                    (lib (string-append out "/lib"))
+                    (inc (string-append out "/include"))
+                    (doc (string-append out "/share/doc/" ,name "-" ,version)))
+               (install-file "libdSFMT.so" lib)
+               (install-file "dSFMT.h" inc)
+               (install-file "LICENSE.txt" doc)
+               #t))))))
+    (synopsis "Double precision SIMD-oriented Fast Mersenne Twister")
+    (description
+     "The dSMFT package speeds up Fast Mersenne Twister generation by avoiding
+the expensive conversion of integer to double (floating point).  dSFMT directly
+generates double precision floating point pseudorandom numbers which have the
+IEEE Standard for Binary Floating-Point Arithmetic (ANSI/IEEE Std 754-1985)
+format.  dSFMT is only available on the CPUs which use IEEE 754 format double
+precision floating point numbers.")
+    (home-page "http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/")
+    (license license:bsd-3)))
 
 (define-public gsl
   (package
@@ -4909,7 +4985,7 @@ cubes.")
        ("pkg-config" ,pkg-config)))
     (home-page "http://numerik.mi.fu-berlin.de/dune-subgrid/index.php")
     (synopsis "Distributed and Unified Numerics Environment")
-    (description "The dune-subgrid module allows to mark elements of
+    (description "The dune-subgrid module marks elements of
 another hierarchical dune grid.  The set of marked elements can then be
 accessed as a hierarchical dune grid in its own right.  Dune-Subgrid
 provides the full grid interface including adaptive mesh refinement.")
@@ -5376,7 +5452,7 @@ researchers and developers alike to get started on SAT.")
 It provides basic and advanced functionality.  Features include customizable
 functions, unit calculations, and conversions, physical constants, symbolic
 calculations (including integrals and equations), arbitrary precision,
-uncertainity propagation, interval arithmetic, plotting and a user-friendly
+uncertainty propagation, interval arithmetic, plotting and a user-friendly
 cli.")
     (license license:gpl2+)))
 

@@ -25,6 +25,8 @@
 ;;; Copyright © 2019 raingloom <raingloom@protonmail.com>
 ;;; Copyright © 2019 David Wilson <david@daviwil.com>
 ;;; Copyright © 2019, 2020 Alexandros Theodotou <alex@zrythm.org>
+;;; Copyright © 2020 Vincent Legoll <vincent.legoll@gmail.com>
+;;; Copyright © 2020 Lars-Dominik Braun <lars@6xq.net>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -1422,10 +1424,10 @@ users to select LV2 plugins and run them with jalv.")
        ("alsa-lib" ,alsa-lib)
        ("non-session-manager" ,non-session-manager)
        ("liblo" ,liblo)
-       ("qtbase" ,qtbase)
-       ("qttools" ,qttools)))
+       ("qtbase" ,qtbase)))
     (native-inputs
-     `(("pkg-config" ,pkg-config)))
+     `(("pkg-config" ,pkg-config)
+       ("qttools" ,qttools)))
     (home-page "https://synthv1.sourceforge.io")
     (synopsis "Polyphonic subtractive synthesizer")
     (description
@@ -2138,11 +2140,11 @@ backends, including ALSA, OSS, Network and FluidSynth.")
      `(("drumstick" ,drumstick)
        ("qtbase" ,qtbase)
        ("qtsvg" ,qtsvg)
-       ("qttools" ,qttools)
        ("qtx11extras" ,qtx11extras)))
     (native-inputs
      `(("libxslt" ,libxslt) ;for xsltproc
        ("docbook-xsl" ,docbook-xsl)
+       ("qttools" ,qttools)
        ("pkg-config" ,pkg-config)))
     (home-page "http://vmpk.sourceforge.net")
     (synopsis "Virtual MIDI piano keyboard")
@@ -2670,7 +2672,7 @@ tune-in sender list from @url{http://opml.radiotime.com}.")
 (define-public pianobar
   (package
     (name "pianobar")
-    (version "2019.02.14")
+    (version "2020.04.05")
     (source (origin
               (method git-fetch)
               (uri (git-reference
@@ -2679,7 +2681,7 @@ tune-in sender list from @url{http://opml.radiotime.com}.")
               (file-name (git-file-name name version))
               (sha256
                (base32
-                "1bfabkj3m9kmhxl64w4azmi0xf7w52fmqfbw2ag28hbb5yy01k1m"))))
+                "1gq8kpks6nychqz4gf0rpy7mrhz5vjw48a60x56j6y9flmazmypw"))))
     (build-system gnu-build-system)
     (arguments
      `(#:tests? #f                      ; no tests
@@ -5379,3 +5381,45 @@ filtered, pitch shifted and ultimately disintegrated.  This is an unofficial
 port of the Regrader plugin created by Igorski.  It is available as an LV2
 plugin and a standalone JACK application.")
     (license license:expat)))
+
+(define-public tap-lv2
+  (let ((commit "cab6e0dfb2ce20e4ad34b067d1281ec0b193598a")
+        (revision "1"))
+    (package
+      (name "tap-lv2")
+      (version (git-version "0.0" revision commit))
+      (source
+        (origin
+          (method git-fetch)
+          (uri (git-reference
+                 (url "https://github.com/moddevices/tap-lv2.git")
+                 (commit commit)))
+          (file-name (git-file-name name version))
+          (sha256
+            (base32
+              "0q480djfqd9g8mzrggc4vl7yclrhdjqx563ghs8mvi2qq8liycw3"))))
+      (build-system gnu-build-system)
+      (arguments
+       `(#:tests? #f                      ; no check target
+         #:make-flags
+         (list "CC=gcc")
+         #:phases
+         (modify-phases %standard-phases
+           (delete 'configure) ; no configure
+           (replace 'install
+             (lambda _
+               (invoke "make"
+               (string-append "INSTALL_PATH="
+                              (assoc-ref %outputs "out")
+                              "/lib/lv2")
+                       "install"))))))
+      (inputs
+        `(("lv2", lv2)))
+      (native-inputs
+        `(("pkg-config", pkg-config)))
+      (synopsis "Audio plugin collection")
+      (description "TAP (Tom's Audio Processing) plugins is a collection of
+  audio effect plugins originally released as LADSPA plugins.  This package
+  offers an LV2 version ported by moddevices.")
+      (home-page "http://tap-plugins.sourceforge.net/")
+      (license license:gpl2))))

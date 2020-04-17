@@ -384,7 +384,7 @@ aliasing facilities to work just as they would on normal mail.")
 (define-public mutt
   (package
     (name "mutt")
-    (version "1.13.4")
+    (version "1.13.5")
     (source (origin
              (method url-fetch)
              (uri (list
@@ -394,7 +394,7 @@ aliasing facilities to work just as they would on normal mail.")
                                    version ".tar.gz")))
              (sha256
               (base32
-               "016dzx2c0kr9xgnw4nfzpkn4nvpk56rdlcqhrwa820fq8083yzdm"))
+               "0lx65a44b03rbvcrz0y9syrik67fx3hvblxyyvz5l9bb7rdipmvc"))
              (patches (search-patches "mutt-store-references.patch"))))
     (build-system gnu-build-system)
     (inputs
@@ -1958,22 +1958,22 @@ maintained.")
 (define-public khard
   (package
     (name "khard")
-    (version "0.15.1")
+    (version "0.16.1")
     (source (origin
               (method url-fetch)
               (uri (pypi-uri name version))
               (sha256
                (base32
-                "18ba2xgfq8sw0bg6xmlfjpizid1hkzgswcfcc54gl21y2dwfda2w"))))
+                "0fg4qh5gzki5wg958wlpc8a2icnk74gzg33lqxjm755cfnjng7qd"))))
     (build-system python-build-system)
     (arguments
      `(#:phases
        (modify-phases %standard-phases
-         (add-after 'install 'install-doc
+         (add-after 'install 'install-completions
            (lambda* (#:key outputs #:allow-other-keys)
              (let* ((out (assoc-ref outputs "out"))
-                    (doc (string-append out "/share/doc/khard")))
-               (copy-recursively "misc/khard" doc)
+                    (zsh (string-append out "/share/zsh/site-functions")))
+               (copy-recursively "misc/zsh" zsh)
                #t))))))
     (native-inputs
      `(("python-setuptools-scm" ,python-setuptools-scm)))
@@ -3003,8 +3003,8 @@ replacement for the @code{urlview} program.")
     (license gpl2+)))
 
 (define-public mumi
-  (let ((commit "0e9af8d11246eb08152a9bcbc3d04703963b756c")
-        (revision "11"))
+  (let ((commit "c85015dac8110bd7a4c37375b9eb05ebeadedf74")
+        (revision "15"))
     (package
       (name "mumi")
       (version (git-version "0.0.0" revision commit))
@@ -3016,7 +3016,7 @@ replacement for the @code{urlview} program.")
                 (file-name (git-file-name name version))
                 (sha256
                  (base32
-                  "0q5x33gc8gi8w7cjphdmhdyfa62b89mcbmj068yd5jxqx8sn4hlw"))))
+                  "05nma73kqnva6ci92aq8jb3718ry5dz3sd64ibpxn5w77z5kpwr7"))))
       (build-system gnu-build-system)
       (arguments
        `(#:modules ((guix build gnu-build-system)
@@ -3047,11 +3047,15 @@ replacement for the @code{urlview} program.")
       (inputs
        `(("guile-debbugs" ,guile-debbugs)
          ("guile-email" ,guile-email)
+         ("guile-gcrypt" ,guile-gcrypt)
          ("guile-json" ,guile-json-3)
+         ("guile-redis" ,guile-redis)
          ("guile-sqlite3" ,guile-sqlite3)
          ("guile-syntax-highlight" ,guile-syntax-highlight)
+         ("guile-webutils" ,guile-webutils)
          ("gnutls" ,gnutls)         ;needed to talk to https://debbugs.gnu.org
          ("guile" ,guile-2.2)
+         ("mailutils" ,mailutils)
          ("mumimu" ,mumimu)))   ;'mumimu' executable recorded in (mumi config)
       (native-inputs
        `(("autoconf" ,autoconf)

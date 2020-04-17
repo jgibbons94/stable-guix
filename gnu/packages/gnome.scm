@@ -250,6 +250,49 @@ Desktop.  It is designed to be as simple as possible and has some unique
 features to enable users to create their discs easily and quickly.")
     (license license:gpl2+)))
 
+(define-public mm-common
+  (package
+    (name "mm-common")
+    (version "1.0.0")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append "mirror://gnome/sources/" name "/"
+                                  (version-major+minor version) "/"
+                                  name "-" version ".tar.xz"))
+              (sha256
+               (base32
+                "1m4w33da9f4rx2d6kdj3ix3kl0gn16ml82v2mdn4hljr3q29nzdr"))))
+    (build-system meson-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'patch
+           (lambda* (#:key inputs #:allow-other-keys)
+             (substitute* "util/mm-common-prepare.in"
+              (("ln") (string-append (assoc-ref inputs "coreutils")
+                                     "/bin/ln"))
+              (("cp") (string-append (assoc-ref inputs "coreutils")
+                                     "/bin/cp"))
+              (("sed") (string-append (assoc-ref inputs "sed")
+                                      "/bin/sed"))
+              (("cat") (string-append (assoc-ref inputs "coreutils")
+                                      "/bin/cat")))
+             #t)))))
+    (native-inputs
+     `(("coreutils" ,coreutils)
+       ("gettext" ,gettext-minimal)
+       ("pkg-config" ,pkg-config)
+       ("sed" ,sed)))
+    (inputs
+     `(("python" ,python)))
+    (synopsis "Module of GNOME C++ bindings")
+    (description "The mm-common module provides the build infrastructure
+and utilities shared among the GNOME C++ binding libraries.  Release
+archives of mm-common include the Doxygen tag file for the GNU C++
+Library reference documentation.")
+    (home-page "https://gitlab.gnome.org/GNOME/mm-common")
+    (license license:gpl2+)))
+
 (define-public phodav
   (package
    (name "phodav")
@@ -6733,7 +6776,8 @@ libxml2.")
                                   name "-" version ".tar.xz"))
               (sha256
                (base32
-                "12ypdz9i24hwbl1d1wnnxb8zlvfa4f49n9ac5cl9d6h8qp4b0gb4"))))
+                "12ypdz9i24hwbl1d1wnnxb8zlvfa4f49n9ac5cl9d6h8qp4b0gb4"))
+              (patches (search-patches "gdm-default-session.patch"))))
     (build-system glib-or-gtk-build-system)
     (arguments
      '(#:configure-flags
@@ -9157,7 +9201,7 @@ configurable file renaming. ")
 (define-public workrave
   (package
     (name "workrave")
-    (version "1.10.37")
+    (version "1.10.42")
     (source
      (origin
        (method git-fetch)
@@ -9168,7 +9212,7 @@ configurable file renaming. ")
                                          version)))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "01cxy7606hx9wgxl550l4p2xa9hsy0rk7swsp58hyi842z2z0y13"))))
+        (base32 "03i9kk8r1wgrfkkbwikx8wxaw4r4kn62vismr2zdq5g34fkkjh95"))))
     (build-system glib-or-gtk-build-system)
     (arguments
      ;; The only tests are maintainer tests (in po/), which fail.
@@ -9635,7 +9679,7 @@ repository and commit your work.")
     (description
      "Gamin is a file and directory monitoring system defined to be a subset
 of the FAM (File Alteration Monitor) system.  This is a service provided by a
-library which allows to detect when a file or a directory has been modified.")
+library which detects when a file or a directory has been modified.")
     (license license:gpl2+)))
 
 (define-public gnome-mahjongg

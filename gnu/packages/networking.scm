@@ -608,14 +608,14 @@ of the same name.")
 (define-public wireshark
   (package
     (name "wireshark")
-    (version "3.2.2")
+    (version "3.2.3")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://www.wireshark.org/download/src/wireshark-"
                            version ".tar.xz"))
        (sha256
-        (base32 "0ygdxpz0i4jxp55fg9x4xcan093wycjb66yas073gviz9kpj6naz"))))
+        (base32 "1fpsfjrap7j84sy728yhcr2gad9nq3n5gq03mwrmxnc6ijwf81zh"))))
     (build-system cmake-build-system)
     (arguments
      `(#:phases
@@ -2030,14 +2030,14 @@ displays the results in real time.")
 (define-public strongswan
   (package
     (name "strongswan")
-    (version "5.8.2")
+    (version "5.8.4")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.strongswan.org/strongswan-"
                            version ".tar.bz2"))
        (sha256
-        (base32 "03j3fx357bh89n44a5v9wdc92azdx2d37j7jmlyr4z1kwzdhv446"))))
+        (base32 "0g2m08gmgdi3qvvqz6zy7n16np53sp232xd0rdc2vdhk73img6id"))))
     (build-system gnu-build-system)
     (arguments
      `(#:phases
