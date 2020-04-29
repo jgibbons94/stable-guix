@@ -34,7 +34,7 @@
 ;;; Copyright © 2017, 2018, 2019 Maxim Cournoyer <maxim.cournoyer@gmail.com>
 ;;; Copyright © 2018 Sohom Bhattacharjee <soham.bhattacharjee15@gmail.com>
 ;;; Copyright © 2018, 2019 Mathieu Lirzin <mthl@gnu.org>
-;;; Copyright © 2018, 2019 Pierre Neidhardt <mail@ambrevar.xyz>
+;;; Copyright © 2018, 2019, 2020 Pierre Neidhardt <mail@ambrevar.xyz>
 ;;; Copyright © 2018, 2019 Tim Gesthuizen <tim.gesthuizen@yahoo.de>
 ;;; Copyright © 2018, 2019 Jack Hill <jackhill@jackhill.us>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <pierre-antoine.rouby@inria.fr>
@@ -474,6 +474,31 @@ setting options and then invoking an Emacs command which does something with
 these arguments.  The prototypical use is for the command to call an external
 process, passing on the arguments as command line arguments.")
     (license license:gpl3+)))
+
+(define-public emacs-magit-annex
+  (let ((commit "ef5dce6267e9118a5eca82a22bcad0b67826c23a")
+        (revision "1"))
+    (package
+      (name "emacs-magit-annex")
+      (version (git-version "1.7.1" revision commit))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/magit/magit-annex.git")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                 (base32
+                  "0vzkydgl889cq173zjl89g2vrddb9abc4a8gljiz3b4a7n5b1nrd"))))
+      (build-system emacs-build-system)
+      (propagated-inputs
+       `(("magit" ,emacs-magit)
+         ("transient" ,emacs-transient)))
+      (home-page "https://github.com/magit/magit-annex/")
+      (synopsis "Git-annex support for Magit")
+      (description
+       "Magit-annex adds a few git-annex operations to the Magit interface.")
+      (license license:gpl3+))))
 
 (define-public emacs-minions
   (package
@@ -2558,9 +2583,9 @@ strings.")
     (license license:gpl2+)))
 
 (define-public emacs-sx
-  (let ((version "20180212")
-        (revision "1")
-        (commit "833435fbf90d1c9e927d165b155f3b1ef39271de"))
+  (let ((version "20191229")
+        (revision "0")
+        (commit "e9d1093c97507a6d7b4f4710ef65200dae725e5f"))
     (package
       (name "emacs-sx")
       (version (git-version version revision commit))
@@ -2572,8 +2597,7 @@ strings.")
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32
-           "1369xaxq1vy3d9yh862ddnhddikdpg2d0wv1ly00pnvdp9v4cqgd"))))
+          (base32 "0m90ddwm8j0y6d1ppqhd2gil1107k202blw6mzm5bdambn4nfqkf"))))
       (build-system emacs-build-system)
       (propagated-inputs
        `(("emacs-markdown-mode" ,emacs-markdown-mode)))
@@ -2582,6 +2606,30 @@ strings.")
       (description
        "Emacs StackExchange client.  Ask and answer questions on
 Stack Overflow, Super User, and other StackExchange sites.")
+      (license license:gpl3+))))
+
+(define-public emacs-toml-mode
+  (let ((version "0.1.3")
+        (revision "0")
+        (commit "f6c61817b00f9c4a3cab1bae9c309e0fc45cdd06"))
+    (package
+      (name "emacs-toml-mode")
+      (version (git-version version revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/dryman/toml-mode.el.git")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "05b4ksay85c8y5ncax0qsvnmplwsfiw24z16a58gkarjz938hb57"))))
+      (build-system emacs-build-system)
+      (home-page "https://github.com/dryman/toml-mode.el")
+      (synopsis "Emacs major mode for editing TOML files")
+      (description
+       "This package provides a major mode for editing files in @acronym{TOML,
+Tom's Obvious, Minimal Language} data format.")
       (license license:gpl3+))))
 
 (define-public emacs-f
@@ -4975,7 +5023,7 @@ number.")
 (define-public emacs-org-superstar
   (package
     (name "emacs-org-superstar")
-    (version "1.1.0")
+    (version "1.2.1")
     (source
      (origin
        (method git-fetch)
@@ -4984,7 +5032,7 @@ number.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "14aafqw8rnbmiy3kcw1a58vjxdyamrbmlldnlw018wgk0qqv0xpx"))))
+        (base32 "14w06v76xi4f6hpq6xzicrjjv0b802g5zc9as4mpimfy5gx2xpm0"))))
     (build-system emacs-build-system)
     (propagated-inputs
      `(("emacs-org" ,emacs-org)))
@@ -5381,7 +5429,35 @@ orange and red as accent colors.")
      "This program is an implementation of 2048 for Emacs.
 The goal of this game is to create a tile with value 2048.  The size of the
 board and goal value can be customized.")
-  (license license:gpl3+)))
+    (license license:gpl3+)))
+
+(define-public emacs-4clojure
+  ;; There is no release.  Base version is extracted from Version keyword in
+  ;; the main file.
+  (let ((commit "4eccf8c7d4341a36c269451838114b27836699f9")
+        (revision "1"))
+    (package
+      (name "emacs-4clojure")
+      (version (git-version "0.2.1" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/emacsorphanage/4clojure.git")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "19x653lzc1dxil4ix257hciidbdmbhaxhs6qhlkwi9ygjrlrgvnk"))))
+      (build-system emacs-build-system)
+      (propagated-inputs
+       `(("emacs-request" ,emacs-request)))
+      (home-page "https://github.com/emacsorphanage/4clojure/")
+      (synopsis "Open and evaluate 4clojure questions in Emacs")
+      (description "Emacs 4clojure interacts with
+@url{http://www.4clojure.com, 4clojure} problems.  You can open a specific
+question and move to the next or previous one.  You can also verify your
+answers.")
+      (license license:gpl3+))))
 
 (define-public emacs-base16-theme
   (package
@@ -9281,28 +9357,27 @@ information inside the Dired buffer.")
       (license license:gpl3+))))
 
 (define-public emacs-dired-toggle-sudo
-  (package
-    (name "emacs-dired-toggle-sudo")
-    (version "1.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/renard/dired-toggle-sudo")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32
-         "0ajj8d6k5in2hclcrqckinfh80ylddplva0ryfbkzsjkfq167cv2"))
-       (patches
-        (search-patches
-         "emacs-dired-toggle-sudo-emacs-26.patch"))))
-    (build-system emacs-build-system)
-    (home-page "https://github.com/renard/dired-toggle-sudo")
-    (synopsis "Browse directory with @code{sudo} privileges")
-    (description "This package allows for the use of @code{dired} with
+  (let ((commit "13bbe52c54893f5aa3e56228450ffdd0c9e1d169")
+        (revision "0"))
+    (package
+      (name "emacs-dired-toggle-sudo")
+      (version (git-version "1.0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/renard/dired-toggle-sudo")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32
+           "1fw1pb1z6krqd1pfxxhr6rrfr9ckkcb0zsjzbjk0i2i1q5cg6car"))))
+      (build-system emacs-build-system)
+      (home-page "https://github.com/renard/dired-toggle-sudo")
+      (synopsis "Browse directory with @code{sudo} privileges")
+      (description "This package allows for the use of @code{dired} with
 @code{sudo} privileges.")
-    (license license:wtfpl2)))
+      (license license:wtfpl2))))
 
 (define-public emacs-diredfl
   (package
@@ -14287,7 +14362,7 @@ notes.")
       (build-system emacs-build-system)
       (home-page "https://github.com/yjwen/org-reveal")
       (synopsis "Org and Reveal.js powered HTML presentation tool")
-      (description "Org-Reveal is a command@{org-mode} extension that allows
+      (description "Org-Reveal is a @command{org-mode} extension that allows
 to create beautiful presentations (slides) with 3D effects from simple but
 powerful Org contents.")
       (license license:gpl3+))))
@@ -15831,10 +15906,10 @@ provide an incremental search that moves all fake cursors in sync.")
       (license license:expat))))
 
 (define-public emacs-evil-org
-  (let ((commit "b6d652a9163d3430a9e0933a554bdbee5244bbf6"))
+  (let ((commit "9d4be14118bf27094a30dbff349b815f098aacbf"))
     (package
       (name "emacs-evil-org")
-      (version (git-version "0.1.1" "1" commit))
+      (version (git-version "1.0.2" "1" commit))
       (source
        (origin
          (method git-fetch)
@@ -15844,7 +15919,7 @@ provide an incremental search that moves all fake cursors in sync.")
          (file-name (git-file-name name version))
          (sha256
           (base32
-           "176hrw7y7nczffbyhsa167b8rvfacsmcafm2gpkrdjqlrikbmrhl"))))
+           "1fxxfkinb0gq4p5b686r7z4jrkv98zfgh5z889zkjacncv8ibswn"))))
       (build-system emacs-build-system)
       (propagated-inputs `(("emacs-evil" ,emacs-evil)))
       (home-page
@@ -20264,6 +20339,29 @@ commands in @code{evil-mode}.")
 Emacs windows and tmux panes.")
     (license license:expat)))
 
+(define-public emacs-xclip
+  (package
+    (name "emacs-xclip")
+    (version "1.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://elpa.gnu.org/packages/"
+                           "xclip-" version ".el"))
+       (sha256
+        (base32 "0i3i9kwfg8qmhcmqhhnrb1kljgwkccv63s9q1mjwqfjldyfh8j8i"))))
+    (build-system emacs-build-system)
+    (home-page "http://elpa.gnu.org/packages/xclip.html")
+    (synopsis "Copy and paste GUI clipboard from Emacs in text terminal")
+    (description
+     "This package allows Emacs to copy to and paste from the GUI clipboard
+when running in text terminal.
+
+It can use external command-line tools for that, e.g., @command{xclip} or
+@command{xsel}, which you may need to install in order for the package to
+work.")
+    (license license:gpl3+)))
+
 (define-public emacs-xterm-color
   (package
     (name "emacs-xterm-color")
@@ -21278,6 +21376,7 @@ fish-completion.  It can be used in both Eshell and M-x shell.")
          (sha256
           (base32
            "0mv6i80958d9crzspzik5xh5g8326115bvg2frgv0dp9p6rm86m3"))
+         (patches (search-patches "emacs-telega-test-env.patch"))
          (file-name (git-file-name name version))))
       (build-system gnu-build-system)
       (arguments
@@ -21369,7 +21468,12 @@ fish-completion.  It can be used in both Eshell and M-x shell.")
       (native-inputs
        `(("tdlib" ,tdlib)
          ("libtgvoip" ,libtgvoip) ; VoIP support.
-         ("emacs" ,emacs)
+         ;; Use Emacs with wide ints on 32-bit architectures.
+         ("emacs" ,(match (%current-system)
+                     ((or "i686-linux" "armhf-linux")
+                      emacs-wide-int)
+                     (_
+                      emacs)))
          ("python" ,python)))
       (synopsis "GNU Emacs client for the Telegram messenger")
       (description
@@ -22535,3 +22639,26 @@ ASCII UML sequence diagrams in Emacs, which can be embedded in source code,
 comments or emails.")
       (license license:gpl3+))))
 
+(define-public emacs-trashed
+  (package
+    (name "emacs-trashed")
+    (version "1.9.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/shingo256/trashed/")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "13grdi12iwlw4fiphdfmvclfpbr6ajlgfbfyi7v41z8k3rxz4ypz"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/shingo256/trashed/")
+    (synopsis "View and edit system trash can in Emacs")
+    (description "Open, view, browse, restore or permanently delete trashed
+files or directories in trash can with Dired-like look and feel.  The trash
+can has to be compliant with freedesktop.org. In Emacs, you can trash files by
+deleting them with @code{(setq delete-by-moving-to-trash t)}.  This package
+provides a simple but convenient user interface to manage those trashed
+files.")
+    (license license:gpl3+)))

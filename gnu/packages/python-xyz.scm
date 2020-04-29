@@ -39,7 +39,7 @@
 ;;; Copyright © 2017 Ben Sturmfels <ben@sturm.com.au>
 ;;; Copyright © 2017, 2018, 2019 Mathieu Othacehe <m.othacehe@gmail.com>
 ;;; Copyright © 2017 José Miguel Sánchez García <jmi2k@openmailbox.org>
-;;; Copyright © 2017 Roel Janssen <roel@gnu.org>
+;;; Copyright © 2017, 2020 Roel Janssen <roel@gnu.org>
 ;;; Copyright © 2017, 2018, 2019 Kei Kebreau <kkebreau@posteo.net>
 ;;; Copyright © 2017 Rutger Helling <rhelling@mykolab.com>
 ;;; Copyright © 2017 Muriithi Frederick Muriuki <fredmanglis@gmail.com>
@@ -63,7 +63,7 @@
 ;;; Copyright © 2019, 2020 Alex Griffin <a@ajgrf.com>
 ;;; Copyright © 2019 Pierre Langlois <pierre.langlois@gmx.com>
 ;;; Copyright © 2019 Jacob MacDonald <jaccarmac@gmail.com>
-;;; Copyright © 2019 Giacomo Leidi <goodoldpaul@autistici.org>
+;;; Copyright © 2019, 2020 Giacomo Leidi <goodoldpaul@autistici.org>
 ;;; Copyright © 2019 Wiktor Żelazny <wzelazny@vurv.cz>
 ;;; Copyright © 2019, 2020 Tanguy Le Carrour <tanguy@bioneland.org>
 ;;; Copyright © 2019 Mădălin Ionel Patrașcu <madalinionel.patrascu@mdc-berlin.de>
@@ -638,6 +638,30 @@ etc. ")
 earlier versions of Python.  The function checks the hostname in the
 certificate returned by the server to which a connection has been established,
 and verifies that it matches the intended target hostname.")
+    (license license:psfl)))
+
+(define-public python-bitarray
+  (package
+    (name "python-bitarray")
+    (version "1.2.1")
+    (source (origin
+              (method url-fetch)
+              (uri (pypi-uri "bitarray" version))
+              (sha256
+               (base32
+                "1kxrlxfj9nrx512sfwifwl9z4v6ky3qschl0zmk3s3dvc3s7bmif"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/ilanschnell/bitarray")
+    (synopsis "Efficient arrays of booleans")
+    (description "This package provides an object type which efficiently
+represents an array of booleans.  Bitarrays are sequence types and behave very
+much like usual lists.  Eight bits are represented by one byte in a contiguous
+block of memory.  The user can select between two representations:
+little-endian and big-endian.  All of the functionality is implemented in C.
+Methods for accessing the machine representation are provided.  This can be
+useful when bit level access to binary files is required, such as portable
+bitmap image files.  Also, when dealing with compressed data which uses
+variable bit length encoding, you may find this module useful.")
     (license license:psfl)))
 
 (define-public python-boolean.py
@@ -3853,14 +3877,14 @@ provides additional functionality on the produced Mallard documents.")
 (define-public python-cython
   (package
     (name "python-cython")
-    (version "0.29.15")
+    (version "0.29.16")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "Cython" version))
        (sha256
         (base32
-         "0c5cjyxfvba6c0vih1fvhywp8bpz30vwvbjqdm1q1k55xzhmkn30"))))
+         "01gs10myw0rw4jsikvqs0859fg7gficxhv508cxvnb4l9wl5a9r3"))))
     (build-system python-build-system)
     ;; we need the full python package and not just the python-wrapper
     ;; because we need libpython3.3m.so
@@ -7980,14 +8004,14 @@ printing of sub-tables by specifying a row range.")
 (define-public python-tables
   (package
     (name "python-tables")
-    (version "3.4.4")
+    (version "3.6.1")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "tables" version))
        (sha256
         (base32
-         "0affz7k8babh8wdmsgrz5jxrd569by2w8ffimcxs9wiaf5rw1idx"))
+         "0j8vnxh2m5n0cyk9z3ndcj5n1zj5rdxgc1gb78bqlyn2lyw75aa9"))
        (modules '((guix build utils)))
        (snippet
         '(begin
@@ -8005,9 +8029,11 @@ printing of sub-tables by specifying a row range.")
          (add-after 'unpack 'use-gcc
            (lambda _
              (substitute* "setup.py"
-               (("compiler = new_compiler\\(\\)" line)
+               (("^( +)compiler = new_compiler\\(\\)" line indent)
                 (string-append line
-                               "\ncompiler.set_executables(compiler='gcc',"
+                               "\n"
+                               indent
+                               "compiler.set_executables(compiler='gcc',"
                                "compiler_so='gcc',"
                                "linker_exe='gcc',"
                                "linker_so='gcc -shared')")))
@@ -19507,3 +19533,61 @@ randomly picked from wordlists.  It supports several sources of
 randomness (including real life dice) and different wordlists (including
 cryptographically signed ones).")
     (license license:gpl3+)))
+
+(define-public pyzo
+  (package
+    (name "pyzo")
+    (version "4.10.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyzo" version))
+       (sha256
+        (base32 "1zplxcb78qy8qibifmnsx5i9gnlfmw9n6nr4yflsabpxw57mx4m1"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-before 'check 'fix-home-directory
+           (lambda _
+             ;; Tests fail with "Permission denied: '/homeless-shelter'".
+             (setenv "HOME" "/tmp")
+             #t)))
+       ;; Tests fail with "Uncaught Python exception: invalid literal for
+       ;; int() with base 10: 'test'".
+       #:tests? #f))
+    (propagated-inputs
+     `(("python-pyqt" ,python-pyqt)))
+    (home-page "https://pyzo.org")
+    (synopsis
+     "Python IDE for scientific computing")
+    (description
+     "Pyzo is a Python IDE focused on interactivity and introspection,
+which makes it very suitable for scientific computing.  Its practical
+design is aimed at simplicity and efficiency.
+
+It consists of two main components, the editor and the shell, and uses
+a set of pluggable tools to help the programmer in various ways.  Some
+example tools are source structure, project manager, interactive help,
+workspace...")
+    (license license:bsd-2)))
+
+(define-public python-osc
+  (package
+    (name "python-osc")
+    (version "1.7.4")
+    (source
+      (origin
+        (method url-fetch)
+        (uri (pypi-uri "python-osc" version))
+        (sha256
+          (base32
+            "0cnh0z5lnng7fh48nmfaqqn8j25k13gkd4rhxd3m6sjqiix9s3vn"))))
+    (build-system python-build-system)
+    (home-page "https://github.com/attwad/python-osc")
+    (synopsis "Open Sound Control server and client implementations")
+    (description
+      "@code{python-osc} is a pure Python library with no external
+dependencies.  It implements the @uref{http://opensoundcontrol.org/spec-1_0,
+Open Sound Control 1.0} specification.")
+    (license license:unlicense)))

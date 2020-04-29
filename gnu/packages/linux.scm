@@ -28,7 +28,7 @@
 ;;; Copyright © 2017 nee <nee-git@hidamari.blue>
 ;;; Copyright © 2017 Dave Love <fx@gnu.org>
 ;;; Copyright © 2018 Pierre-Antoine Rouby <pierre-antoine.rouby@inria.fr>
-;;; Copyright © 2018 Brendan Tildesley <mail@brendan.scot>
+;;; Copyright © 2018, 2020 Brendan Tildesley <mail@brendan.scot>
 ;;; Copyright © 2018 Manuel Graf <graf@init.at>
 ;;; Copyright © 2018 Pierre Langlois <pierre.langlois@gmx.com>
 ;;; Copyright © 2018 Vasile Dumitrascu <va511e@yahoo.com>
@@ -194,9 +194,9 @@ defconfig.  Return the appropriate make target if applicable, otherwise return
 
 (define deblob-scripts-5.6
   (linux-libre-deblob-scripts
-   "5.6"
-   (base32 "09hxrr4xzllq5lmipfb6if30318lksrk9py1axc36m9ynql4w0rc")
-   (base32 "09qz5d31g5zwicsnncjnjij193hk0g6kg0ss9jyzh6lp3wilcm71")))
+   "5.6.7"
+   (base32 "196fdbfy1f8zbmnv0ik720snig2bacsh7hfyvgbmlsfk3cil2zgv")
+   (base32 "1g0bi3c8xzy1vz6w1xbpkb3a26bqn9d1yphcqz2ki4aikra81wid")))
 
 (define deblob-scripts-5.4
   (linux-libre-deblob-scripts
@@ -369,50 +369,50 @@ corresponding UPSTREAM-SOURCE (an origin), using the given DEBLOB-SCRIPTS."
     (sha256 hash)))
 
 
-(define-public linux-libre-5.6-version "5.6.4")
+(define-public linux-libre-5.6-version "5.6.7")
 (define-public linux-libre-5.6-pristine-source
   (let ((version linux-libre-5.6-version)
-        (hash (base32 "14cxbc9xi4s3xwx4yb1yd4z0kidsk3d443skf5sgmdhcalg79wax")))
+        (hash (base32 "1jljcva3gxg1yc2kw3jjgmhzzdm16nylzxl63zbndjza547l5813")))
    (make-linux-libre-source version
                             (%upstream-linux-source version hash)
                             deblob-scripts-5.6)))
 
-(define-public linux-libre-5.4-version "5.4.32")
+(define-public linux-libre-5.4-version "5.4.35")
 (define-public linux-libre-5.4-pristine-source
   (let ((version linux-libre-5.4-version)
-        (hash (base32 "1czjjnln1cqrnjxw0md6mpw9haw9abdyvmxnjds56ym4nzx9jb8r")))
+        (hash (base32 "1m06k19pbb3wz8z2dgf03jvzbbdh6q8jwwdz509s902a53vxasz1")))
    (make-linux-libre-source version
                             (%upstream-linux-source version hash)
                             deblob-scripts-5.4)))
 
-(define-public linux-libre-4.19-version "4.19.115")
+(define-public linux-libre-4.19-version "4.19.118")
 (define-public linux-libre-4.19-pristine-source
   (let ((version linux-libre-4.19-version)
-        (hash (base32 "1hh170z3mv181l6cc6qqc12wif5jsmxbh2qxbq6b9km5irydkchi")))
+        (hash (base32 "15lcq3xky59v88vb8vvnmgcsmm1fadz0m4jyrii6rynsz5jr6x49")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.19)))
 
-(define-public linux-libre-4.14-version "4.14.176")
+(define-public linux-libre-4.14-version "4.14.177")
 (define-public linux-libre-4.14-pristine-source
   (let ((version linux-libre-4.14-version)
-        (hash (base32 "18jwxhf29ax54xnylmz9zfkslnxw7y3h215dbfmmvddfp9b0kbmw")))
+        (hash (base32 "04hq0i06mg2yc09jj2xk0vhf5q9yigzjzm55a5bvfy2a6j43r9rk")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.14)))
 
-(define-public linux-libre-4.9-version "4.9.219")
+(define-public linux-libre-4.9-version "4.9.220")
 (define-public linux-libre-4.9-pristine-source
   (let ((version linux-libre-4.9-version)
-        (hash (base32 "0i5wlyp11ss9p035bhq73xjx8iyk5dk4ynvd7msw5qfkrs6265vb")))
+        (hash (base32 "0bhbkybzbdsbmrjmb5m7hxxl8b3v6n79zhh86cbr95kzg1hcgnfs")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.9)))
 
-(define-public linux-libre-4.4-version "4.4.219")
+(define-public linux-libre-4.4-version "4.4.220")
 (define-public linux-libre-4.4-pristine-source
   (let ((version linux-libre-4.4-version)
-        (hash (base32 "1mpxqb2m24ay4n9px4n2cyklxy4lhnv9q6wlvilx13rs5qfbb62f")))
+        (hash (base32 "1knj3qsl7x3fysdz1h0s980ddbafs3658z2y67w6sn79wp7d8blg")))
     (make-linux-libre-source version
                              (%upstream-linux-source version hash)
                              deblob-scripts-4.4)))
@@ -2981,6 +2981,43 @@ time.")
                    (string-append out "/bin")))
                 #t)))))))))
 
+(define-public python-evdev
+  (package
+    (name "python-evdev")
+    (version "1.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "evdev" version))
+       (sha256
+        (base32 "0kb3636yaw9l8xi8s184w0r0n9ic5dw3b8hx048jf9fpzss4kimi"))))
+    (build-system python-build-system)
+    (native-inputs
+     `(("kernel-headers" ,linux-libre-headers)))
+    (arguments
+     `(#:tests? #f                      ;no rule for tests
+       #:phases
+       (modify-phases %standard-phases
+         (add-before 'build 'fix-hard-coded-directory
+           (lambda* (#:key inputs #:allow-other-keys)
+             (substitute* "setup.py"
+               (("/usr/include/linux")
+                (string-append
+                 (assoc-ref inputs "kernel-headers") "/include/linux")))
+             #t)))))
+    (home-page "https://github.com/gvalkov/python-evdev")
+    (synopsis "Bindings to the Linux input handling subsystem")
+    (description
+     "Python-evdev provides bindings to the generic input event interface in
+Linux.  The @code{evdev} interface serves the purpose of passing events
+generated in the kernel directly to userspace through character devices that
+are typically located in @file{/dev/input/}.
+
+This package also comes with bindings to @code{uinput}, the userspace input
+subsystem.  @code{uinput} allows userspace programs to create and handle input
+devices that can inject events directly into the input subsystem.")
+    (license license:bsd-3)))
+
 (define-public lvm2
   (package
     (name "lvm2")
@@ -4638,7 +4675,7 @@ feature, and a laptop with an accelerometer.  It has no effect on SSDs.")
                     (share (string-append out "/share/" ,name)))
                (substitute* "CMakeLists.txt"
                  (("pkg_check_modules\\((OPENRC|SYSTEMD) .*" _ package)
-                  (format "option(~a_FOUND \"Faked\" ON)\n" package))
+                  (format #f "option(~a_FOUND \"Faked\" ON)\n" package))
                  ;; That was easy!  Now we just need to fix the destinations.
                  (("/etc" directory)
                   (string-append out directory)))
@@ -4680,11 +4717,11 @@ from userspace.")
            (lambda _
              (substitute* "tpacpi-bat"
                (("cat ")
-                (format "~a " (which "cat")))
+                (format #f "~a " (which "cat")))
                ;; tpacpi-bat modprobes the acpi_call kernel module if it's not
                ;; loaded.  That's the administrator's prerogative; disable it.
                (("system \"(modprobe .*)\"" _ match)
-                (format "die \"Please run ‘~a’ first.\\n\"" match)))
+                (format #f "die \"Please run ‘~a’ first.\\n\"" match)))
              #t))
          (delete 'configure)            ; nothing to configure
          (delete 'build)                ; nothing to build

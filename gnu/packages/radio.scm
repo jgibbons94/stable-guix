@@ -1,6 +1,6 @@
 ;;; GNU Guix --- Functional package management for GNU
 ;;; Copyright © 2017, 2018, 2019 Arun Isaac <arunisaac@systemreboot.net>
-;;; Copyright © 2019 Christopher Howard <christopher@librehacker.com>
+;;; Copyright © 2019, 2020 Christopher Howard <christopher@librehacker.com>
 ;;; Copyright © 2019, 2020 Evan Straw <evan.straw99@gmail.com>
 ;;; Copyright © 2020 Guillaume Le Vaillant <glv@posteo.net>
 ;;; Copyright © 2020 Danny Milosavljevic <dannym@scratchpost.org>
@@ -36,6 +36,8 @@
   #:use-module (gnu packages documentation)
   #:use-module (gnu packages engineering)
   #:use-module (gnu packages fltk)
+  #:use-module (gnu packages gcc)
+  #:use-module (gnu packages gd)
   #:use-module (gnu packages ghostscript)
   #:use-module (gnu packages glib)
   #:use-module (gnu packages gstreamer)
@@ -44,6 +46,7 @@
   #:use-module (gnu packages libusb)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages logging)
+  #:use-module (gnu packages lua)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages multiprecision)
   #:use-module (gnu packages networking)
@@ -53,9 +56,13 @@
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages qt)
+  #:use-module (gnu packages readline)
+  #:use-module (gnu packages ruby)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages swig)
+  #:use-module (gnu packages tcl)
   #:use-module (gnu packages tex)
+  #:use-module (gnu packages texinfo)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages xorg)
@@ -392,8 +399,8 @@ environment.")
        ("fftwf" ,fftwf)
        ("gmp" ,gmp)
        ("gnuradio" ,gnuradio)
+       ("hackrf" ,hackrf)
        ("log4cpp" ,log4cpp)
-       ;; TODO: Add more drivers.
        ("rtl-sdr" ,rtl-sdr)
        ("volk" ,volk)))
     (synopsis "GNU Radio block for interfacing with various radio hardware")
@@ -530,22 +537,24 @@ using GNU Radio and the Qt GUI toolkit.")
 (define-public fldigi
   (package
     (name "fldigi")
-    (version "4.1.11")
+    (version "4.1.12")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "http://www.w1hkj.com/files/fldigi/fldigi-"
                            version ".tar.gz"))
        (sha256
-        (base32 "1y62xn1pim38ibaf2mbl8b7aq20jdaac6lgggb9r402w9bj5b196"))))
+        (base32 "1yjjv2ss84xfiaidypp476mhrbpnw4zf7mb5cdqwhdh604x0svr1"))))
     (build-system gnu-build-system)
     (native-inputs
      `(("pkg-config" ,pkg-config)))
     (inputs
      `(("alsa-lib" ,alsa-lib)
        ("fltk" ,fltk)
+       ("hamlib" ,hamlib)
        ("libpng" ,libpng)
        ("libsamplerate" ,libsamplerate)
+       ("libusb" ,libusb)
        ("libx11" ,libx11)
        ("libxext" ,libxext)
        ("libxfixes" ,libxfixes)
@@ -643,4 +652,229 @@ encapsulate both text and binary files in a way that allows them to be
 transmitted over any of several digital modes and verified at the receipt end
 for correctness.")
     (home-page "http://www.w1hkj.com/")
+    (license license:gpl3+)))
+
+(define-public hackrf
+  ;; Using a git commit because there have been many many commits
+  ;; since the relase two years ago, but no sign of a promised
+  ;; release for many months now.
+  (let ((commit "43e6f99fe8543094d18ff3a6550ed2066c398862")
+        (revision "0"))
+    (package
+     (name "hackrf")
+     (version (git-version "2018.01.1" revision commit))
+     (source
+      (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/mossmann/hackrf.git")
+             (commit commit)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0avnv693xi0zsnrvkbfn0ln1r3s1iyj0bz7sc3gxay909av0pvbc"))))
+     (build-system cmake-build-system)
+     (arguments
+      '(#:configure-flags
+        (list "-DUDEV_RULES_GROUP=dialout"
+              (string-append "-DUDEV_RULES_PATH="
+                             (assoc-ref %outputs "out")
+                             "/lib/udev/rules.d"))
+        #:phases
+        (modify-phases %standard-phases
+          (add-before 'configure 'enter-source-directory
+            (lambda _
+              (chdir "host")
+              #t))
+          (add-after 'install 'delete-static-library
+            (lambda* (#:key outputs #:allow-other-keys)
+              (delete-file (string-append (assoc-ref outputs "out")
+                                          "/lib/libhackrf.a"))
+              #t))
+          (add-before 'install-license-files 'leave-source-directory
+            (lambda _
+              (chdir "..")
+              #t)))
+        #:tests? #f)) ; no test suite
+     (native-inputs
+      `(("pkg-config" ,pkg-config)))
+     (inputs
+      `(("fftw" ,fftw)
+        ("fftwf" ,fftwf)
+        ("libusb" ,libusb)))
+     (home-page "https://greatscottgadgets.com/hackrf/")
+     (synopsis "User-space library and utilities for HackRF SDR")
+     (description
+      "Command line utilities and a C library for controlling the HackRF
+Software Defined Radio (SDR) over USB.  Installing this package installs
+the userspace hackrf utilities and C library.  To install the hackrf
+udev rules, you must add this package as a system service via
+modify-services.  E.g.:
+
+@lisp
+(services
+ (modify-services
+  %desktop-services
+  (udev-service-type config =>
+   (udev-configuration (inherit config)
+    (rules (cons hackrf
+            (udev-configuration-rules config)))))))
+@end lisp")
+     (license license:gpl2))))
+
+(define-public hamlib
+  (package
+    (name "hamlib")
+    (version "3.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://github.com/Hamlib/Hamlib/releases/download/"
+             version "/hamlib-" version ".tar.gz"))
+       (sha256
+        (base32 "10788mgrhbc57zpzakcxv5aqnr2819pcshml6fbh8zvnkja562y9"))))
+    (build-system gnu-build-system)
+    (native-inputs
+     `(("doxygen" ,doxygen)
+       ("lua" ,lua)
+       ("pkg-config" ,pkg-config)
+       ("python-wrapper" ,python-wrapper)
+       ("swig" ,swig)
+       ("tcl" ,tcl)))
+    (inputs
+     `(("gd" ,gd)
+       ("libusb" ,libusb)
+       ("libxml2" ,libxml2)
+       ("readline" ,readline)))
+    (arguments
+     `(#:configure-flags '("--disable-static"
+                           "--with-lua-binding"
+                           "--with-python-binding"
+                           "--with-tcl-binding"
+                           "--with-xml-support")))
+    (synopsis "Tools and API to control radios")
+    (description
+     "The Ham Radio Control Library (Hamlib) is a project to provide programs
+with a consistent Application Programming Interface (API) for controlling the
+myriad of radios and rotators available to amateur radio and communications
+users.")
+    (home-page "https://hamlib.github.io/")
+    (license (list license:gpl2+ license:lgpl2.1+))))
+
+(define wsjtx-hamlib
+  ;; Fork of hamlib with custom patches used by wsjtx.
+  (package
+    (inherit hamlib)
+    (name "wsjtx-hamlib")
+    (version "2.1.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://git.code.sf.net/u/bsomervi/hamlib.git")
+             (commit (string-append "wsjtx-" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ksv3cmr1dl45p0pp1panyc9dngd158gvv9ysv25lq4nqv1wn87i"))))
+    (native-inputs
+     `(("autoconf" ,autoconf)
+       ("automake" ,automake)
+       ("libtool" ,libtool)
+       ("texinfo" ,texinfo)
+       ,@(package-native-inputs hamlib)))))
+
+(define-public wsjtx
+  (package
+    (name "wsjtx")
+    (version "2.1.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://git.code.sf.net/p/wsjt/wsjtx.git")
+             (commit (string-append "wsjtx-" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1fnqzjd3dmxp3yjwjvwz2djk9gzb1y2cqfa188f3x8lynxhdhnfs"))
+       (modules '((guix build utils)))
+       (snippet
+        '(begin
+           ;; Delete bundled boost to use the shared one.
+           (delete-file-recursively "boost")
+           #t))))
+    (build-system qt-build-system)
+    (native-inputs
+     `(("asciidoc" ,asciidoc)
+       ("gfortran" ,gfortran)
+       ("pkg-config" ,pkg-config)
+       ("qttools" ,qttools)
+       ("ruby-asciidoctor" ,ruby-asciidoctor)))
+    (inputs
+     `(("boost" ,boost)
+       ("fftw" ,fftw)
+       ("fftwf" ,fftwf)
+       ("hamlib" ,wsjtx-hamlib)
+       ("libusb" ,libusb)
+       ("qtbase" ,qtbase)
+       ("qtmultimedia" ,qtmultimedia)
+       ("qtserialport" ,qtserialport)))
+    (arguments
+     `(#:tests? #f)) ; No test suite
+    (synopsis "Weak-signal ham radio communication program")
+    (description
+     "WSJT-X implements communication protocols or modes called FT4, FT8,
+JT4, JT9, JT65, QRA64, ISCAT, MSK144, and WSPR, as well as one called Echo for
+detecting and measuring your own radio signals reflected from the Moon.  These
+modes were all designed for making reliable, confirmed QSOs under extreme
+weak-signal conditions.")
+    (home-page "https://www.physics.princeton.edu/pulsar/k1jt/wsjtx.html")
+    (license license:gpl3)))
+
+(define-public xnec2c
+  (package
+    (name "xnec2c")
+    (version "4.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "http://www.5b4az.org/pkg/nec2/xnec2c/xnec2c-"
+                           version ".tar.bz2"))
+       (sha256
+        (base32 "1myvlkfybb2ha8l0h96ca3iz206zzy9z5iizm0sbab2zzp78n1r9"))))
+    (build-system gnu-build-system)
+    (native-inputs
+     `(("pkg-config" ,pkg-config)))
+    (inputs
+     `(("gtk+" ,gtk+)))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'fix-makefile
+           (lambda* (#:key outputs #:allow-other-keys)
+             (substitute* '("Makefile.am" "Makefile.in")
+               ;; The DESTDIR variable does not get replaced the prefix
+               ;; in the final Makefile, so let's do here.
+               (("\\$\\(DESTDIR\\)/usr")
+                (assoc-ref outputs "out")))
+             #t))
+         (add-after 'fix-makefile 'fix-paths
+           (lambda* (#:key outputs #:allow-other-keys)
+             ;; Increase the max length of the path to the glade file,
+             ;; so that the '/gnu/store/...' path can fit in.
+             (substitute* '("src/shared.c" "src/shared.h")
+               (("char xnec2c_glade\\[64\\];")
+                "char xnec2c_glade[256];"))
+             ;; Fix hard coded references to '/usr/...'.
+             (substitute* '("src/geom_edit.c" "src/main.c")
+               (("\"/usr")
+                (string-append "\"" (assoc-ref outputs "out"))))
+             #t)))))
+    (synopsis "Antenna modeling software")
+    (description
+     "Xnec2c is a GTK3-based graphical version of nec2c, a translation to the
+C language of NEC2, the FORTRAN Numerical Electromagnetics Code commonly used
+for antenna simulation and analysis.  It can be used to define the geometry of
+an antenna, and then plot the radiation pattern or frequency-related data like
+gain and standing wave ratio.")
+    (home-page "http://www.5b4az.org/")
     (license license:gpl3+)))

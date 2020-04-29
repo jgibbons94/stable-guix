@@ -13,7 +13,7 @@
 ;;; Copyright © 2018 Arun Isaac <arunisaac@systemreboot.net>
 ;;; Copyright © 2019, 2020 Guillaume Le Vaillant <glv@posteo.net>
 ;;; Copyright © 2019 Tanguy Le Carrour <tanguy@bioneland.org>
-;;; Copyright © 2019 Martin Becze <mjbecze@riseup.net>
+;;; Copyright © 2019, 2020 Martin Becze <mjbecze@riseup.net>
 ;;; Copyright © 2019 Sebastian Schott <sschott@mailbox.org>
 ;;; Copyright © 2020 Kei Kebreau <kkebreau@posteo.net>
 ;;; Copyright © 2020 Christopher Lemmer Webber <cwebber@dustycloud.org>
@@ -41,6 +41,7 @@
   #:use-module (guix git-download)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system cmake)
+  #:use-module (guix build-system copy)
   #:use-module (guix build-system emacs)
   #:use-module (guix build-system python)
   #:use-module (guix build-system glib-or-gtk)
@@ -241,11 +242,11 @@ and dynamically with report tools based on filtering and graphical charts.")
        ("libedit" ,libedit)
        ("mpfr" ,mpfr)
        ("python" ,python-2)
-       ("tzdata" ,tzdata)
        ("utfcpp" ,utfcpp)))
     (native-inputs
      `(("groff" ,groff)
-       ("texinfo" ,texinfo)))
+       ("texinfo" ,texinfo)
+       ("tzdata" ,tzdata-for-tests)))
     (home-page "https://ledger-cli.org/")
     (synopsis "Command-line double-entry accounting program")
     (description
@@ -1165,10 +1166,37 @@ information.")
     (home-page "https://grisbi.org")
     (license license:gpl2+)))
 
+(define-public trezord-udev-rules
+  (let ((commit "bff7fdfe436c727982cc553bdfb29a9021b423b0")
+        (revision "0"))
+      (package
+        (name "trezord-udev-rules")
+        (version (git-version "0.0.0" revision commit))
+        (source
+         (origin
+           (method git-fetch)
+           (uri (git-reference
+                 (url "https://github.com/trezor/trezor-common.git")
+                 (commit commit)))
+           (sha256
+            (base32
+             "14mrirrn68if7ja6qdk9qlxs1hv0f21vrxy5ncnms0gx9iwakp2l"))
+           (file-name (git-file-name name version))))
+        (build-system copy-build-system)
+        (arguments
+         '(#:install-plan
+           '(("./udev/51-trezor.rules" "lib/udev/rules.d/"))))
+        (home-page "https://github.com/trezor/trezor-common")
+        (synopsis "Udev rules for trezord")
+        (description
+         "This contains the udev rules for trezord.  This will let a user run
+trezord as a regular user instead of needing to it run as root.")
+        (license license:lgpl3+))))
+
 (define-public trezord
   (package
     (name "trezord")
-    (version "2.0.17")
+    (version "2.0.29")
     (source
      (origin
        (method git-fetch)
@@ -1177,7 +1205,7 @@ information.")
               (commit (string-append "v" version))))
        (sha256
         (base32
-         "0nqzpq0i3crh0i4r1cppja5sn3rwi1fv9afxzwzv63096x5l30a7"))
+         "1ks1fa0027s3xp0z6qp0dxmayvrb4dwwscfhbx7da0khp153f2cp"))
        (file-name (git-file-name name version))))
     (build-system go-build-system)
     (arguments
@@ -1405,14 +1433,14 @@ a Qt GUI.")
 (define-public fulcrum
   (package
     (name "fulcrum")
-    (version "1.0.5b")
+    (version "1.1.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://gitlab.com/FloweeTheHub/fulcrum/-/archive/v"
                            version "/fulcrum-v" version ".tar.gz"))
        (sha256
-        (base32 "1c1hkik8avill8ha33g76rk4b03j5ac8wiml69q4jav7a63ywgfy"))))
+        (base32 "1xywwgsdhkiblv6la0pfhvn2s9q8vnz6pjg35647rlwzi6ybf0ak"))))
     (build-system gnu-build-system)
     (arguments
      `(#:phases
@@ -1443,14 +1471,14 @@ like Flowee the Hub, which Fulcrum connects to over RPC.")
 (define-public flowee
   (package
     (name "flowee")
-    (version "2020.03.1")
+    (version "2020.03.2")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://gitlab.com/FloweeTheHub/thehub/-/archive/"
                             version "/thehub-" version ".tar.gz"))
        (sha256
-         (base32 "1ajd5axv9zyhh6njrvamm11zn52j1q4j3mwn2nfv7cjd4lhnhlsr"))))
+         (base32 "1m8wfwxljvd2gqpfj1w37xky4isa3h9a7g57cnf3l4r90r4bxj47"))))
     (build-system cmake-build-system)
     (arguments
      `(#:configure-flags '("-Dbuild_tests=ON" "-Denable_gui=OFF")

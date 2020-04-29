@@ -6264,12 +6264,14 @@ technologies.")
     (name "java-eclipse-jetty-test-helper")
     (version "4.2")
     (source (origin
-              (method url-fetch)
-              (uri (string-append "https://github.com/eclipse/jetty.toolchain/"
-                                  "archive/jetty-test-helper-" version ".tar.gz"))
+              (method git-fetch)
+              (uri (git-reference
+                     (url "https://github.com/eclipse/jetty.toolchain/")
+                     (commit (string-append "jetty-test-helper-" version))))
+              (file-name (git-file-name name version))
               (sha256
                (base32
-                "1jd6r9wc26fa11si4rn2gvy8ml8q4zw1nr6v04mjp8wvwpgvzwx5"))))
+                "1g7cdh03nfwbdxzvwm84ysgvw08xx7431lsjryj2gmf3lrqpizgb"))))
     (build-system ant-build-system)
     (arguments
      `(#:jar-name "eclipse-jetty-test-helper.jar"
@@ -7151,8 +7153,8 @@ compressed JSON header blocks.
                "0wwhwv7cvi1vxpdjwvg0kpa4jzhszclpnwrwfcw728zz53a47z09"))))))
 
 (define-public hpcguix-web
-  (let ((commit "f39c90b35e99e4122b0866ec4337020d61c81508")
-        (revision "4"))
+  (let ((commit "9de63562b06b4aef3a3afe5ecb18d3c91e57ee74")
+        (revision "5"))
     (package
       (name "hpcguix-web")
       (version (git-version "0.0.1" revision commit))
@@ -7164,7 +7166,7 @@ compressed JSON header blocks.
                 (file-name (git-file-name name version))
                 (sha256
                  (base32
-                  "0idzzlwnaymk6hm5q9nh146h5m6vd8acp32vlmzp6qq08mimfkq7"))))
+                  "0wjgj2s7v2cyz6dx24c111rxs99i84sfvxl4ch8brnh02j2606jz"))))
       (build-system gnu-build-system)
       (arguments
        `(#:modules ((guix build gnu-build-system)
@@ -7220,11 +7222,11 @@ compressed JSON header blocks.
          ("uglify-js" ,uglify-js)
          ("pkg-config" ,pkg-config)))
       (inputs
-       `(("guix" ,guix)))
+       `(("guix" ,guile3.0-guix)))
       (propagated-inputs
-       `(("guile" ,guile-2.2)
-         ("guile-commonmark" ,guile-commonmark)
-         ("guile-json" ,guile-json-3)))
+       `(("guile" ,guile-next)
+         ("guile-commonmark" ,guile3.0-commonmark)
+         ("guile-json" ,guile3.0-json)))
       (home-page "https://github.com/UMCUGenetics/hpcguix-web")
       (synopsis "Web interface for cluster deployments of Guix")
       (description "Hpcguix-web provides a web interface to the list of packages
