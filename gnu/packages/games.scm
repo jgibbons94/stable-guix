@@ -2743,7 +2743,16 @@ interface or via an external visual interface such as GNU XBoard.")
              ;; These tests require a graphical interface.
              (substitute* "src/Makefile.am"
                (("test_gfx_fonts TestIOGfxDisplay") ""))
-             #t)))))
+             #t))
+         (add-before 'bootstrap 'autoreconf
+           (lambda _
+	     ;; automake is out of date in the source
+	     ;; autoreconf updates the automake scripts
+	     (invoke "autoreconf")
+	     ;; Build fails when autom4te.cache exists.
+	     (delete-file-recursively "autom4te.cache")
+             #t))
+	 )))
     (native-inputs `(("autoconf" ,autoconf)
                      ("automake" ,automake)
                      ("cxxtest" ,cxxtest)
