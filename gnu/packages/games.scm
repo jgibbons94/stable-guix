@@ -5872,7 +5872,17 @@ The Flag.  You can even design your own maps!")
              (substitute* "src/main.cc"
                (("#include <SDL_(image|ttf|mixer).h>" line header)
                 (string-append "#include \"SDL/SDL_" header ".h\"")))
-             #t)))))
+             #t))
+	 (add-after 'find-sdl 'fix-proxy
+           (lambda _
+             ;; Build fails when making src/lev/Proxy.cc because
+             ;; the wrong operator overload is used.
+             (substitute* "src/lev/Proxy.cc"
+               (("ifs != NULL")
+                "!ifs"))
+	     (display "...")
+             #t))
+	 )))
     (inputs
      `(("xerces-c" ,xerces-c)
        ("sdl-union" ,(sdl-union (list sdl sdl-image sdl-mixer sdl-ttf)))
