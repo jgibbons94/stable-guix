@@ -44,6 +44,7 @@
 ;;; Copyright © 2020 Michael Rohleder <mike@rohleder.de>
 ;;; Copyright © 2020 Vinicius Monego <monego@posteo.net>
 ;;; Copyright © 2020 Brett Gilio <brettg@gnu.org>
+;;; Copyright © 2020 Jesse Gibbons <jgibbons2357+guix@gmail.com>
 ;;;
 ;;; This file is part of GNU Guix.
 ;;;
@@ -131,6 +132,7 @@
   #:use-module (gnu packages markup)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mp3)
+  #:use-module (gnu packages music)
   #:use-module (gnu packages ncurses)
   #:use-module (gnu packages networking)
   #:use-module (gnu packages ocr)
@@ -1268,6 +1270,7 @@ videoformats depend on the configuration flags of ffmpeg.")
        ("libdvdread" ,libdvdread)
        ("libebml" ,libebml)
        ("libgcrypt" ,libgcrypt)
+       ("libgme" ,libgme)
        ("libidn" ,libidn)
        ("libkate" ,libkate)
        ("libmad" ,libmad)
@@ -1321,6 +1324,7 @@ videoformats depend on the configuration flags of ffmpeg.")
      `(#:configure-flags
        `("BUILDCC=gcc"
          "--enable-fluidsynth"
+         "--enable-gme"
          ,(string-append "LDFLAGS=-Wl,-rpath -Wl,"
                          (assoc-ref %build-inputs "ffmpeg")
                          "/lib"))       ;needed for the tests
