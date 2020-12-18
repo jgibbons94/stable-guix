@@ -335,7 +335,8 @@ as ordering relation.")
     (arguments
      '(#:configure-flags
        (list (string-append "-DJSON_TestDataDirectory="
-                            (assoc-ref %build-inputs "json_test_data")))
+                            (assoc-ref %build-inputs "json_test_data"))
+	     "-DJSON_MultipleHeaders=ON")
        #:phases (modify-phases %standard-phases
                   ;; XXX: When tests are enabled, the install phase will cause
                   ;; a needless rebuild without the given configure flags,

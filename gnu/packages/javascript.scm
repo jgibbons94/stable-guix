@@ -30,6 +30,7 @@
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (guix git-download)
+  #:use-module (guix build-system cmake)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system trivial)
@@ -504,3 +505,35 @@ Javascript sources to executables with no external dependency.  It includes a
 command line interpreter with contextual colorization implemented in
 Javascript and a small built-in standard library with C library wrappers.")
     (license license:expat)))
+
+(define-public duktape
+  (package
+    (name "duktape")
+    (version "2.6.0")
+    (source (origin
+              (method url-fetch)
+	      (uri
+		(string-append "https://duktape.org/duktape-"
+			       version ".tar.xz"))
+              (sha256
+                (base32
+                  "19szwxzvl2g65fw95ggvb8h0ma5bd9vvnnccn59hwnc4dida1x4n"))))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+		      (add-after 'unpack 'fix-install-prefiX
+				 (lambda* (#:key outputs #:allow-other-keys)
+				   (let ((out (assoc-ref outputs "out")))
+				     (substitute* "Makefile.sharedlibrary"
+						  (("/usr/local") out)))
+				   #t))
+		      (delete 'configure))
+     #:tests? #f
+     #:make-flags (list "--makefile=Makefile.sharedlibrary")))
+
+    (build-system gnu-build-system)
+    (home-page "https://www.duktape.org")
+    (synopsis "Embeddable JavaScript engine")
+    (description "Duktape is an embeddable JavaScript engine with a focus on portability and compact footprint.")
+    (license license:expat)))
+

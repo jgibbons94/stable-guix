@@ -93,11 +93,13 @@
   #:use-module (gnu packages avahi)
   #:use-module (gnu packages assembly)
   #:use-module (gnu packages bash)
+;  #:use-module (gnu packages benchmark)
   #:use-module (gnu packages bison)
   #:use-module (gnu packages boost)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages cpp)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages crypto)
   #:use-module (gnu packages cyrus-sasl)
@@ -133,6 +135,7 @@
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages imagemagick)
+  #:use-module (gnu packages javascript)
   #:use-module (gnu packages kde)
   #:use-module (gnu packages kde-frameworks)
   #:use-module (gnu packages less)
@@ -4218,7 +4221,7 @@ Transport Tycoon Deluxe.")
 (define openrct2-objects
   (package
    (name "openrct2-objects")
-   (version "1.0.9")
+   (version "1.0.20")
    (source
     (origin
      (method url-fetch)
@@ -4226,7 +4229,7 @@ Transport Tycoon Deluxe.")
                          version "/objects.zip"))
      (file-name (string-append name "-" version ".zip"))
      (sha256
-      (base32 "02apb8h553m7d6jvysgb1zahvxc1yzyygfca2iclb21b3fhpsas4"))))
+      (base32 "1q7a38kcwrfijav6app1gf253yfv8b0rljbkah8040y6i7snw9mw"))))
    (build-system trivial-build-system)
    (native-inputs
     `(("bash" ,bash)
@@ -4258,7 +4261,7 @@ Transport Tycoon Deluxe.")
 (define-public openrct2
   (package
     (name "openrct2")
-    (version "0.2.6")
+    (version "0.3.2")
     (source
      (origin
        (method git-fetch)
@@ -4267,7 +4270,8 @@ Transport Tycoon Deluxe.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1vikbkg3wh5ngzdfilb6irbh6nqinf138qpdz8wz9izlvl8s36k4"))))
+        (base32
+          "1fd32wniiy6qz2046ppqfj2sb3rf2qf086rf9v1bdhyj254d0b1z"))))
     (build-system cmake-build-system)
     (arguments
      `(#:configure-flags (list "-DDOWNLOAD_OBJECTS=OFF"
@@ -4295,11 +4299,14 @@ Transport Tycoon Deluxe.")
              (substitute* "CMakeLists.txt"
                (("-Werror") ""))
              #t)))))
-    (inputs `(("curl" ,curl)
+    (inputs `(;("benchmark" ,benchmark)
+	      ("curl" ,curl)
+	      ("duktape" ,duktape)
               ("fontconfig" ,fontconfig)
               ("freetype" ,freetype)
               ("icu4c" ,icu4c)
               ("jansson" ,jansson)
+	      ("json-modern-cxx" ,json-modern-cxx)
               ("libpng" ,libpng)
               ("libzip" ,libzip)
               ("mesa" ,mesa)
